@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<form string="Milestone">
+    <label name="number"/>
+    <field name="number"/>
+    <label name="project"/>
+    <field name="project"/>
+    <label name="description"/>
+    <field name="description" colspan="3"/>
+    <label name="kind"/>
+    <field name="kind"/>
+    <label name="invoice_method"/>
+    <field name="invoice_method"/>
+    <label name="trigger"/>
+    <field name="trigger"/>
+
+    <group col="3" id="trigger_progress">
+        <label name="trigger_progress"/>
+        <field name="trigger_progress" factor="100" xexpand="0"/>
+        <label name="trigger_progress" string="%" xalign="0.0" xexpand="1"/>
+    </group>
+
+    <group id="fixed_amount" col="2" colspan="2">
+        <label name="amount"/>
+        <field name="amount"/>
+        <label name="currency"/>
+        <field name="currency"/>
+        <label name="advancement_product"/>
+        <field name="advancement_product"/>
+    </group>
+
+
+    <group id="invoice_date_calculator" colspan="2" col="4"
+            string="Invoice Date calculation">
+        <label name="months"/>
+        <field name="months"/>
+        <label name="month"/>
+        <field name="month"/>
+        <label name="weeks"/>
+        <field name="weeks"/>
+        <label name="weekday"/>
+        <field name="weekday"/>
+        <label name="days"/>
+        <field name="days"/>
+        <label name="day"/>
+        <field name="day"/>
+    </group>
+
+    <label name="invoice"/>
+    <field name="invoice"/>
+    <label name="invoice_date"/>
+    <field name="invoice_date"/>
+    <label name="planned_invoice_date"/>
+    <field name="planned_invoice_date"/>
+
+    <group id="state_buttons" colspan="4" col="4">
+        <label name="state"/>
+        <field name="state"/>
+        <group id="buttons" colspan="2" col="10">
+            <button name="check_trigger" string="Check Triggers"/>
+            <button name="cancel" string="Cancel"/>
+            <button name="draft" string="Draft"/>
+            <button name="confirm" string="Confirm"/>
+            <button name="do_invoice" string="Invoice"/>
+        </group>
+    </group>
+</form>

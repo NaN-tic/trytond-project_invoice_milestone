@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<form string="Milestone Type">
+    <label name="invoice_method"/>
+    <field name="invoice_method"/>
+    <label name="group"/>
+    <field name="group"/>
+    <group col="2" id="progress">
+        <field name="progress" factor="100"/>
+        <label name="progress" string="%" xalign="0.0" xexpand="1" xfill="1"/>
+    </group>
+    <separator id="invoicing" string="Invoicing" colspan="4"/>
+    <label name="amount"/>
+    <field name="amount"/>
+    <label name="currency"/>
+    <field name="currency"/>
+    <label name="advancement_product"/>
+    <field name="advancement_product"/>
+    <separator name="description" colspan="4"/>
+    <field name="description" colspan="4"/>
+    <separator id="invoice_date_calculator" colspan="4"
+        string="Invoice Date calculation"/>
+    <label name="months"/>
+    <field name="months"/>
+    <label name="month"/>
+    <field name="month"/>
+    <label name="weeks"/>
+    <field name="weeks"/>
+    <label name="weekday"/>
+    <field name="weekday"/>
+    <label name="days"/>
+    <field name="days"/>
+    <label name="day"/>
+    <field name="day"/>
+</form>

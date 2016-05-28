@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<tree string="Milestone">
+    <field name="number"/>
+    <field name="project"/>
+    <field name="advancement_product"/>
+    <field name="invoice_method"/>
+    <field name="kind"/>
+    <field name="trigger"/>
+    <field name="trigger_progress" factor="100">
+        <suffix string="%"/>
+    </field>
+    <field name="amount"/>
+    <!-- <field name="invoice"/> -->
+    <field name="state"/>
+</tree>

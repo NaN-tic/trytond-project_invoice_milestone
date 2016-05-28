@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!-- This file is part of Tryton.  The COPYRIGHT file at the top level of
+this repository contains the full copyright notices and license terms. -->
+<tryton>
+    <data>
+        <record model="ir.ui.view" id="milestone_configuration_view_form">
+            <field name="model">project.milestone.configuration</field>
+            <field name="type">form</field>
+            <field name="name">configuration_form</field>
+        </record>
+
+        <record model="ir.action.act_window"
+                id="act_milestone_configuration_form">
+            <field name="name">Milestone</field>
+            <field name="res_model">project.milestone.configuration</field>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_milestone_configuration_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view" ref="milestone_configuration_view_form"/>
+            <field name="act_window" ref="act_milestone_configuration_form"/>
+        </record>
+        <menuitem parent="project.menu_configuration"
+            action="act_milestone_configuration_form"
+            id="menu_milestone_configuration"
+            sequence="20"/>
+
+        <record model="ir.property" id="property_milestone_sequence">
+            <field name="field"
+                search="[('model.model', '=', 'project.milestone.configuration'), ('name', '=', 'milestone_sequence')]"/>
+            <field name="value" eval="'ir.sequence,' + str(ref('sequence_milestone'))"/>
+        </record>
+    </data>
+</tryton>
