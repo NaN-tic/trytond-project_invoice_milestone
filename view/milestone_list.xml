@@ -11,7 +11,9 @@
     <field name="trigger_progress" factor="100">
         <suffix string="%"/>
     </field>
-    <field name="amount"/>
+    <field name="advancement_amount"/>
     <!-- <field name="invoice"/> -->
     <field name="state"/>
+    <field name="project_company" tree_invisible="1"/>
+    <field name="project_party" tree_invisible="1"/>
 </tree>

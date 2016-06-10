@@ -6,13 +6,15 @@ from .milestone import *
 from .work import *
 from .invoice import *
 
+
 def register():
     Pool.register(
         Configuration,
-        Invoice,
-        InvoiceMilestoneRelation,
-        MilestoneTypeGroup,
-        MilestoneType,
+#        MilestoneTypeGroup,
+#        MilestoneType,
         Milestone,
         Work,
-        module='project_invoice_term', type_='model')
+        Invoice,
+        InvoiceMilestoneRelation,
+        InvoiceLine,
+        module='project_invoice_milestone', type_='model')

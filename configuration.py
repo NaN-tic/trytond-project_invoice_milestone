@@ -6,12 +6,14 @@ __all_ = ['Configuration']
 
 
 class Configuration(ModelSingleton, ModelSQL, ModelView):
-    'Milestone Configuration'
-    __name__ = 'project.milestone.configuration'
-
-    # advancement_product = fields.Many2One(
-    #     'product.product', 'Default Advancement Product'),
+    'Project Invoice Milestone Configuration'
+    __name__ = 'project.invoice_milestone.configuration'
+    _table = 'project_invoice_milestone_config'
     milestone_sequence = fields.Property(fields.Many2One('ir.sequence',
         'Milestone Sequence', domain=[
-            ('code', '=', 'project.work.milestone'),
+            ('code', '=', 'project.invoice_milestone'),
             ]))
+    advancement_product = fields.Many2One('product.product',
+        'Default Advancement Product')
+    compensation_product = fields.Many2One('product.product',
+        'Default Compensation Product')

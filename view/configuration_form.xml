@@ -4,7 +4,9 @@
 <form string="Milestone Configuration">
     <label name="milestone_sequence"/>
     <field name="milestone_sequence"/>
-  <!--  <label name="advancement_product"/>
+    <newline/>
+    <label name="advancement_product"/>
     <field name="advancement_product"/>
- -->
+    <label name="compensation_product"/>
+    <field name="compensation_product"/>
 </form>

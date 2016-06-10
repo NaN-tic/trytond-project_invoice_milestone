@@ -22,14 +22,15 @@
     </group>
 
     <group id="fixed_amount" col="2" colspan="2">
-        <label name="amount"/>
-        <field name="amount"/>
+        <label name="advancement_amount"/>
+        <field name="advancement_amount"/>
         <label name="currency"/>
         <field name="currency"/>
         <label name="advancement_product"/>
         <field name="advancement_product"/>
+        <label name="compensation_product"/>
+        <field name="compensation_product"/>
     </group>
-
 
     <group id="invoice_date_calculator" colspan="2" col="4"
             string="Invoice Date calculation">

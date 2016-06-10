@@ -7,7 +7,7 @@
     <field name="progress" factor="100">
         <suffix string="%"/>
     </field>
-    <field name="amount"/>
+    <field name="advancement_amount"/>
     <field name="currency"/>
     <field name="months"/>
     <field name="month"/>

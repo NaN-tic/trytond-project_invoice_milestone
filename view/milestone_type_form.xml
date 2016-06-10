@@ -11,8 +11,8 @@
         <label name="progress" string="%" xalign="0.0" xexpand="1" xfill="1"/>
     </group>
     <separator id="invoicing" string="Invoicing" colspan="4"/>
-    <label name="amount"/>
-    <field name="amount"/>
+    <label name="advancement_amount"/>
+    <field name="advancement_amount"/>
     <label name="currency"/>
     <field name="currency"/>
     <label name="advancement_product"/>

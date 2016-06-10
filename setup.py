@@ -6,7 +6,7 @@ import re
 import os
 import ConfigParser
 
-MODULE = 'project_invoice_term'
+MODULE = 'project_invoice_milestone'
 PREFIX = 'nantic'
 MODULE2PREFIX = {}
 

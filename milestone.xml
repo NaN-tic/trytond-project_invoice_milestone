@@ -3,7 +3,6 @@
      copyright notices and license terms. -->
 <tryton>
     <data>
-
         <record model="res.group" id="group_milestone">
             <field name="name">Project Milestones</field>
         </record>
@@ -18,22 +17,22 @@
             <field name="group" ref="group_milestone"/>
         </record>
 
-        <!-- project.work.milestone.group.type -->
-        <record model="ir.ui.view" id="milestone_type_group_view_form">
-            <field name="model">project.work.milestone.type.group</field>
+        <!-- project.invoice_milestone.group.type -->
+        <!--<record model="ir.ui.view" id="milestone_type_group_view_form">
+            <field name="model">project.invoice_milestone.type.group</field>
             <field name="type">form</field>
             <field name="name">milestone_type_group_form</field>
         </record>
 
         <record model="ir.ui.view" id="milestone_type_group_view_list">
-            <field name="model">project.work.milestone.type.group</field>
+            <field name="model">project.invoice_milestone.type.group</field>
             <field name="type">tree</field>
             <field name="name">milestone_type_group_list</field>
         </record>
 
         <record model="ir.action.act_window" id="act_milestone_type_group">
             <field name="name">Milestone Type Group</field>
-            <field name="res_model">project.work.milestone.type.group</field>
+            <field name="res_model">project.invoice_milestone.type.group</field>
         </record>
         <record model="ir.action.act_window.view"
                 id="act_milestone_type_group_view1">
@@ -49,9 +48,9 @@
         </record>
 
         <record model="ir.model.access"
-                id="access_milestone_group_type">
+                id="access_milestone_type_group">
             <field name="model"
-                search="[('model', '=', 'project.work.milestone.type.group')]"/>
+                search="[('model', '=', 'project.invoice_milestone.type.group')]"/>
             <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
@@ -59,9 +58,9 @@
         </record>
 
         <record model="ir.model.access"
-                id="access_milestone_group_type_admin">
+                id="access_milestone_type_group_admin">
             <field name="model"
-                search="[('model', '=', 'project.work.milestone.type.group')]"/>
+                search="[('model', '=', 'project.invoice_milestone.type.group')]"/>
             <field name="group" ref="group_milestone"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -69,22 +68,35 @@
             <field name="perm_delete" eval="True"/>
         </record>
 
-        <!-- project.work.milestone.type -->
-        <record model="ir.ui.view" id="milestone_type_view_form">
-            <field name="model">project.work.milestone.type</field>
+        <record model="ir.model.button"
+                id="milestone_type_group_check_triggers_button">
+            <field name="name">check_trigger</field>
+            <field name="model"
+                search="[('model', '=', 'project.invoice_milestone.type.group')]"/>
+        </record>
+        <record model="ir.model.button-res.group"
+                id="milestone_check_triggers_button_group_milestone">
+            <field name="button" ref="milestone_type_group_check_triggers_button"/>
+            <field name="group" ref="group_milestone"/>
+        </record>
+        -->
+
+        <!-- project.invoice_milestone.type -->
+        <!--<record model="ir.ui.view" id="milestone_type_view_form">
+            <field name="model">project.invoice_milestone.type</field>
             <field name="type">form</field>
             <field name="name">milestone_type_form</field>
         </record>
 
         <record model="ir.ui.view" id="milestone_type_view_list">
-            <field name="model">project.work.milestone.type</field>
+            <field name="model">project.invoice_milestone.type</field>
             <field name="type">tree</field>
             <field name="name">milestone_type_list</field>
         </record>
 
         <record model="ir.action.act_window" id="act_milestone_type">
             <field name="name">Milestone Types</field>
-            <field name="res_model">project.work.milestone.type</field>
+            <field name="res_model">project.invoice_milestone.type</field>
         </record>
         <record model="ir.action.act_window.view"
                 id="act_milestone_type_view1">
@@ -101,7 +113,7 @@
 
         <record model="ir.model.access" id="access_milestone_type_milestone">
             <field name="model"
-                search="[('model', '=', 'project.work.milestone.type')]"/>
+                search="[('model', '=', 'project.invoice_milestone.type')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
@@ -110,105 +122,104 @@
 
         <record model="ir.model.access" id="access_milestone_type_admin">
             <field name="model"
-                search="[('model', '=', 'project.work.milestone.type')]"/>
+                search="[('model', '=', 'project.invoice_milestone.type')]"/>
             <field name="group" ref="group_milestone"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_delete" eval="True"/>
-        </record>
+        </record>-->
 
-        <record model="ir.ui.view" id="project_work_milestone_view_form">
-            <field name="model">project.work.milestone</field>
+        <!-- project.invoice_milestone -->
+        <record model="ir.ui.view" id="milestone_view_form">
+            <field name="model">project.invoice_milestone</field>
             <field name="type">form</field>
             <field name="name">milestone_form</field>
         </record>
-        <record model="ir.ui.view" id="project_work_milestone_view_list">
-            <field name="model">project.work.milestone</field>
+
+        <record model="ir.ui.view" id="milestone_view_list">
+            <field name="model">project.invoice_milestone</field>
             <field name="type">tree</field>
             <field name="name">milestone_list</field>
         </record>
-        <record model="ir.action.act_window" id="act_project_milestone">
-            <field name="name">Milestone</field>
-            <field name="res_model">project.work.milestone</field>
+
+        <record model="ir.action.act_window" id="act_milestone">
+            <field name="name">Invoice Milestone</field>
+            <field name="res_model">project.invoice_milestone</field>
         </record>
-        <record model="ir.action.act_window.view" id="act_project_milestone_view1">
+        <record model="ir.action.act_window.view" id="act_milestone_view1">
+            <field name="act_window" ref="act_milestone"/>
             <field name="sequence" eval="10"/>
-            <field name="view" ref="project_work_milestone_view_list"/>
-            <field name="act_window" ref="act_project_milestone"/>
+            <field name="view" ref="milestone_view_list"/>
         </record>
-        <record model="ir.action.act_window.view" id="act_project_milestone_view2">
+        <record model="ir.action.act_window.view" id="act_milestone_view2">
+            <field name="act_window" ref="act_milestone"/>
             <field name="sequence" eval="20"/>
-            <field name="view" ref="project_work_milestone_view_form"/>
-            <field name="act_window" ref="act_project_milestone"/>
+            <field name="view" ref="milestone_view_form"/>
         </record>
         <record model="ir.action.act_window.domain"
                 id="act_milestone_domain_draft">
-            <field name="act_window" ref="act_project_milestone"/>
+            <field name="act_window" ref="act_milestone"/>
             <field name="sequence" eval="10"/>
             <field name="name">Draft</field>
             <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"/>
         </record>
         <record model="ir.action.act_window.domain"
                 id="act_milestone_domain_approved">
-            <field name="act_window" ref="act_project_milestone"/>
+            <field name="act_window" ref="act_milestone"/>
             <field name="sequence" eval="20"/>
             <field name="name">Confirmed</field>
             <field name="domain" eval="[('state', '=', 'confirmed')]" pyson="1"/>
         </record>
         <record model="ir.action.act_window.domain"
                 id="act_milestone_domain_processing">
-            <field name="act_window" ref="act_project_milestone"/>
+            <field name="act_window" ref="act_milestone"/>
             <field name="sequence" eval="30"/>
             <field name="name">Processing</field>
             <field name="domain" eval="[('state', '=', 'processing')]" pyson="1"/>
         </record>
         <record model="ir.action.act_window.domain"
                 id="act_milestone_domain_succeeded">
-            <field name="act_window" ref="act_project_milestone"/>
+            <field name="act_window" ref="act_milestone"/>
             <field name="sequence" eval="40"/>
             <field name="name">Succeeded</field>
             <field name="domain" eval="[('state', '=', 'succeeded')]" pyson="1" />
         </record>
         <record model="ir.action.act_window.domain"
                 id="act_milestone_domain_failed">
-            <field name="act_window" ref="act_project_milestone"/>
+            <field name="act_window" ref="act_milestone"/>
             <field name="sequence" eval="50"/>
             <field name="name">Failed</field>
             <field name="domain" eval="[('state', '=', 'failed')]" pyson="1"/>
         </record>
         <record model="ir.action.act_window.domain"
                 id="act_milestone_domain_all">
-            <field name="act_window" ref="act_project_milestone"/>
+            <field name="act_window" ref="act_milestone"/>
             <field name="sequence" eval="9999"/>
             <field name="name">All</field>
         </record>
-        <record model="ir.model.access" id="access_project_work_milestone">
+
+        <record model="ir.model.access" id="access_milestone">
             <field name="model"
-                search="[('model', '=', 'project.work.milestone')]"/>
+                search="[('model', '=', 'project.invoice_milestone')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>
         </record>
-        <record model="ir.model.access" id="access_project_work_milestone_admin">
+        <record model="ir.model.access" id="access_milestone_admin">
             <field name="model"
-                search="[('model', '=', 'project.work.milestone')]"/>
+                search="[('model', '=', 'project.invoice_milestone')]"/>
             <field name="group" ref="group_milestone"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_delete" eval="True"/>
         </record>
-        <record model="ir.ui.view" id="work_view_form">
-            <field name="model">project.work</field>
-            <field name="inherit" ref="project.work_view_form"/>
-            <field name="name">work_form</field>
-        </record>
 
         <record model="ir.sequence.type" id="sequence_type_milestone">
             <field name="name">Milestone</field>
-            <field name="code">project.milestone</field>
+            <field name="code">project.invoice_milestone</field>
         </record>
         <record model="ir.sequence.type-res.group"
             id="sequence_type_party_group_admin">
@@ -223,38 +234,34 @@
 
         <record model="ir.sequence" id="sequence_milestone">
             <field name="name">Milestone</field>
-            <field name="code">project.milestone</field>
+            <field name="code">project.invoice_milestone</field>
         </record>
 
-        <record model="ir.model.button"
-                id="milestone_check_triggers_button">
-            <field name="name">check_trigger</field>
-            <field name="model"
-                search="[('model', '=', 'account.invoice.milestone.group')]"/>
-        </record>
-        <record model="ir.model.button-res.group"
-                id="milestone_check_triggers_button_group_milestone">
-            <field name="button" ref="milestone_check_triggers_button"/>
-            <field name="group" ref="group_milestone"/>
+        <!-- project.work -->
+        <record model="ir.ui.view" id="work_view_form">
+            <field name="model">project.work</field>
+            <field name="inherit" ref="project.work_view_form"/>
+            <field name="name">work_form</field>
         </record>
 
-        <menuitem parent="project.menu_configuration"
-            action="act_milestone_type_group" sequence="40"
-            id="menu_milestone_type_group"/>
-
-        <record model="ir.ui.menu-res.group"
-                id="menu_milestone_type_group_group_milestone">
-          <field name="menu" ref="menu_milestone_type_group"/>
-          <field name="group" ref="group_milestone"/>
-        </record>
-
-        <menuitem action="act_project_milestone"
-            id="menu_project_work_milestone" parent="project.menu_project"
+        <!-- menus -->
+        <!--<menuitem id="menu_milestone_type_group"
+            action="act_milestone_type_group"
+            parent="project.menu_configuration"
             sequence="40"/>
-
         <record model="ir.ui.menu-res.group"
-                id="menu_project_invoice_term_group_milestone">
-          <field name="menu" ref="menu_project_work_milestone"/>
+            id="menu_milestone_type_group_group_milestone">
+            <field name="menu" ref="menu_milestone_type_group"/>
+            <field name="group" ref="group_milestone"/>
+        </record>-->
+
+        <menuitem id="menu_milestone"
+            action="act_milestone"
+            parent="project.menu_project"
+            sequence="40"/>
+        <record model="ir.ui.menu-res.group"
+                id="menu_milestone_group_milestone">
+          <field name="menu" ref="menu_milestone"/>
           <field name="group" ref="group_milestone"/>
         </record>
     </data>
