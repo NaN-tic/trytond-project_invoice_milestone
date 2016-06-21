@@ -11,23 +11,27 @@
     <label name="kind"/>
     <field name="kind"/>
     <label name="invoice_method"/>
-    <field name="invoice_method"/>
+    <group id="invoice_method" col="3">
+        <field name="invoice_method"/>
+        <label name="is_credit"/>
+        <field name="is_credit"/>
+    </group>
     <label name="trigger"/>
     <field name="trigger"/>
 
-    <group col="3" id="trigger_progress">
-        <label name="trigger_progress"/>
+    <label name="trigger_progress"/>
+    <group col="2" id="trigger_progress">
         <field name="trigger_progress" factor="100" xexpand="0"/>
         <label name="trigger_progress" string="%" xalign="0.0" xexpand="1"/>
     </group>
 
     <group id="fixed_amount" col="2" colspan="2">
+        <label name="advancement_product"/>
+        <field name="advancement_product"/>
         <label name="advancement_amount"/>
         <field name="advancement_amount"/>
         <label name="currency"/>
         <field name="currency"/>
-        <label name="advancement_product"/>
-        <field name="advancement_product"/>
         <label name="compensation_product"/>
         <field name="compensation_product"/>
     </group>
@@ -48,12 +52,14 @@
         <field name="day"/>
     </group>
 
-    <label name="invoice"/>
-    <field name="invoice"/>
-    <label name="invoice_date"/>
-    <field name="invoice_date"/>
     <label name="planned_invoice_date"/>
     <field name="planned_invoice_date"/>
+    <label name="invoice_date"/>
+    <field name="invoice_date"/>
+    <label name="invoice"/>
+    <field name="invoice"/>
+    <label name="invoiced_amount"/>
+    <field name="invoiced_amount"/>
 
     <group id="state_buttons" colspan="4" col="4">
         <label name="state"/>

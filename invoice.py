@@ -1,8 +1,11 @@
 # The COPYRIGHT file at the top level of this repository contains the full
 # copyright notices and license terms.
+import itertools
+
 from trytond.model import ModelSQL, fields, Unique
 from trytond.pool import PoolMeta, Pool
 from trytond.pyson import Eval
+from trytond.tools import grouped_slice
 
 __all__ = ['Invoice', 'InvoiceMilestoneRelation', 'InvoiceLine']
 
@@ -51,6 +54,52 @@ class Invoice:
     # @classmethod
     # def search_milestone_group(cls, name, clause):
     #     return [('milestone.group',) + tuple(clause[1:])]
+
+    @classmethod
+    def credit(cls, invoices, refund=False):
+        pool = Pool()
+        Milestone = pool.get('project.invoice_milestone')
+        WorkInvoicedProgress = pool.get('project.work.invoiced_progress')
+
+        new_invoices = super(Invoice, cls).credit(invoices, refund=refund)
+
+        # TODO: it should go to project_invoice
+        inv_line2winvprog = {}
+        for winvprog_sub_ids in grouped_slice([l.id
+                    for i in invoices for l in i.lines]):
+            for winvprog in WorkInvoicedProgress.search([
+                        ('invoice_line', 'in', winvprog_sub_ids),
+                        ]):
+                inv_line2winvprog.setdefault(
+                    winvprog.invoice_line.id, []).append(winvprog._credit())
+
+        if inv_line2winvprog:
+            winvprog_to_create = []
+            for new_inv in new_invoices:
+                for new_inv_line in new_inv.lines:
+                    for new_winvprog in inv_line2winvprog.get(
+                                new_inv_line.origin.id, []):
+                        new_winvprog.invoice_line = new_inv_line
+                        winvprog_to_create.append(new_winvprog)
+            if winvprog_to_create:
+                WorkInvoicedProgress.save(winvprog_to_create)
+        # END part to move to project_invoice
+
+        milestones_to_create = []
+        for invoice, new_invoice in itertools.izip(invoices, new_invoices):
+            if invoice.milestone:
+                milestones_to_create.append(
+                    invoice.milestone._credit(new_invoice))
+        if milestones_to_create:
+            Milestone.save(milestones_to_create)
+            Milestone.confirm(milestones_to_create)
+            Milestone.proceed(milestones_to_create)
+            milestones_to_succeed = [m for m in milestones_to_create
+                if m.invoice.state in ('posted', 'paid')]
+            if milestones_to_succeed:
+                Milestone.succeed(milestones_to_succeed)
+
+        return new_invoices
 
     @classmethod
     def draft(cls, invoices):

@@ -14,6 +14,7 @@ def register():
 #        MilestoneType,
         Milestone,
         Work,
+        WorkInvoicedProgress,
         Invoice,
         InvoiceMilestoneRelation,
         InvoiceLine,

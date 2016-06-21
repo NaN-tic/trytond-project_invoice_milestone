@@ -7,7 +7,7 @@ from trytond.model import fields
 from trytond.pool import PoolMeta, Pool
 from trytond.pyson import Eval
 
-__all__ = ['Work']
+__all__ = ['Work', 'WorkInvoicedProgress']
 
 
 class Work:
@@ -45,7 +45,12 @@ class Work:
             if not milestone.invoice or milestone.invoice.state == 'cancel':
                 continue
             if milestone.invoice_method == 'fixed':
-                advanced_amount += milestone.invoice.untaxed_amount
+                if milestone.is_credit:
+                    # If it's necessary to get the invoice line amount, save
+                    # relation to inv line on Milestone._credit()
+                    advanced_amount += milestone.advancement_amount
+                else:
+                    advanced_amount += milestone.invoice.untaxed_amount
             else:
                 invoice_ids.append(milestone.invoice.id)
                 milestone_ids.append(milestone.id)
@@ -53,19 +58,16 @@ class Work:
         if advanced_amount == Decimal(0) or not milestone_ids:
             return advanced_amount
 
-        print "advanced_amount:", advanced_amount, " invoice_ids:", invoice_ids, " milestone_ids:", milestone_ids
-
         # Get all compensation lines (origin is project's milestones)
-        advancement_invoice_lines = InvoiceLine.search([
+        compensation_inv_lines = InvoiceLine.search([
                 ('invoice', 'in', invoice_ids),
                 ('origin.id', 'in', milestone_ids,
                     'project.invoice_milestone'),
                 ])
-        print "advancement_invoice_lines:", advancement_invoice_lines, [il.amount for il in advancement_invoice_lines]
-        if not advancement_invoice_lines:
+        if not compensation_inv_lines:
             return advanced_amount
         return (advanced_amount
-            + sum(il.amount for il in advancement_invoice_lines))
+            + sum(il.amount for il in compensation_inv_lines))
 
     def get_invoice_method(self, name):
         """Milestone invoice method is like progress but invoicing triggered
@@ -125,3 +127,21 @@ class Work:
             default = default.copy()
         default['milestones'] = None
         return super(Work, cls).copy(works, default=default)
+
+
+class WorkInvoicedProgress:
+    __name__ = 'project.work.invoiced_progress'
+    __metaclass__ = PoolMeta
+
+    def _credit(self):
+        '''
+        Return values to credit invoiced progress.
+        '''
+        invoiced_progress = self.__class__()
+        invoiced_progress.work = self.work
+        if self.effort_duration is not None:
+            invoiced_progress.effort_duration = self.effort_duration * -1
+        if self.quantity is not None:
+            invoiced_progress.quantity = -self.quantity
+        # invoiced_progress.invoice_line'] = credit invoice line
+        return invoiced_progress

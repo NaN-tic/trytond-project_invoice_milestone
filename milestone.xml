@@ -237,13 +237,6 @@
             <field name="code">project.invoice_milestone</field>
         </record>
 
-        <!-- project.work -->
-        <record model="ir.ui.view" id="work_view_form">
-            <field name="model">project.work</field>
-            <field name="inherit" ref="project.work_view_form"/>
-            <field name="name">work_form</field>
-        </record>
-
         <!-- menus -->
         <!--<menuitem id="menu_milestone_type_group"
             action="act_milestone_type_group"
