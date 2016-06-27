@@ -21,5 +21,24 @@
             <field name="inherit" ref="project.work_view_list"/>
             <field name="name">work_list</field>
         </record>
+
+        <record model="ir.action.act_window.domain" id="act_project_tree_draft">
+            <field name="name">Draft</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"/>
+            <field name="act_window" ref="project.act_project_tree"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_project_form_draft">
+            <field name="name">Draft</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"/>
+            <field name="act_window" ref="project.act_project_form"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_task_form_draft">
+            <field name="name">Draft</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"/>
+            <field name="act_window" ref="project.act_task_form"/>
+        </record>
     </data>
 </tryton>

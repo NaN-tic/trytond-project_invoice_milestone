@@ -18,7 +18,7 @@
         </record>
 
         <!-- project.invoice_milestone.group.type -->
-        <!--<record model="ir.ui.view" id="milestone_type_group_view_form">
+        <record model="ir.ui.view" id="milestone_type_group_view_form">
             <field name="model">project.invoice_milestone.type.group</field>
             <field name="type">form</field>
             <field name="name">milestone_type_group_form</field>
@@ -50,7 +50,8 @@
         <record model="ir.model.access"
                 id="access_milestone_type_group">
             <field name="model"
-                search="[('model', '=', 'project.invoice_milestone.type.group')]"/>
+                search="[('model', '=', 'project.invoice_milestone.type.group')]"
+                pyson="1"/>
             <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
@@ -60,7 +61,8 @@
         <record model="ir.model.access"
                 id="access_milestone_type_group_admin">
             <field name="model"
-                search="[('model', '=', 'project.invoice_milestone.type.group')]"/>
+                search="[('model', '=', 'project.invoice_milestone.type.group')]"
+                pyson="1"/>
             <field name="group" ref="group_milestone"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -68,6 +70,20 @@
             <field name="perm_delete" eval="True"/>
         </record>
 
+        <record model="ir.model.button"
+                id="milestone_type_group_create_milestone_button">
+            <field name="name">creat_milestones</field>
+            <field name="model"
+                search="[('model', '=', 'project.invoice_milestone.type.group')]"/>
+        </record>
+        <record model="ir.model.button-res.group"
+                id="milestone_check_triggers_button_group_milestone">
+            <field name="button" ref="milestone_type_group_create_milestone_button"/>
+            <field name="group" ref="group_milestone"/>
+        </record>
+
+
+<!--
         <record model="ir.model.button"
                 id="milestone_type_group_check_triggers_button">
             <field name="name">check_trigger</field>
@@ -82,7 +98,7 @@
         -->
 
         <!-- project.invoice_milestone.type -->
-        <!--<record model="ir.ui.view" id="milestone_type_view_form">
+        <record model="ir.ui.view" id="milestone_type_view_form">
             <field name="model">project.invoice_milestone.type</field>
             <field name="type">form</field>
             <field name="name">milestone_type_form</field>
@@ -128,7 +144,7 @@
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_delete" eval="True"/>
-        </record>-->
+        </record>
 
         <!-- project.invoice_milestone -->
         <record model="ir.ui.view" id="milestone_view_form">
@@ -176,21 +192,21 @@
             <field name="act_window" ref="act_milestone"/>
             <field name="sequence" eval="30"/>
             <field name="name">Processing</field>
-            <field name="domain" eval="[('state', '=', 'processing')]" pyson="1"/>
+            <field name="domain" eval="[('state', '=', 'invoiced')]" pyson="1"/>
         </record>
-        <record model="ir.action.act_window.domain"
+        <!-- <record model="ir.action.act_window.domain"
                 id="act_milestone_domain_succeeded">
             <field name="act_window" ref="act_milestone"/>
             <field name="sequence" eval="40"/>
             <field name="name">Succeeded</field>
             <field name="domain" eval="[('state', '=', 'succeeded')]" pyson="1" />
         </record>
-        <record model="ir.action.act_window.domain"
+ -->        <record model="ir.action.act_window.domain"
                 id="act_milestone_domain_failed">
             <field name="act_window" ref="act_milestone"/>
             <field name="sequence" eval="50"/>
             <field name="name">Failed</field>
-            <field name="domain" eval="[('state', '=', 'failed')]" pyson="1"/>
+            <field name="domain" eval="[('state', '=', 'cancel')]" pyson="1"/>
         </record>
         <record model="ir.action.act_window.domain"
                 id="act_milestone_domain_all">
@@ -238,7 +254,7 @@
         </record>
 
         <!-- menus -->
-        <!--<menuitem id="menu_milestone_type_group"
+        <menuitem id="menu_milestone_type_group"
             action="act_milestone_type_group"
             parent="project.menu_configuration"
             sequence="40"/>
@@ -246,7 +262,7 @@
             id="menu_milestone_type_group_group_milestone">
             <field name="menu" ref="menu_milestone_type_group"/>
             <field name="group" ref="group_milestone"/>
-        </record>-->
+        </record>
 
         <menuitem id="menu_milestone"
             action="act_milestone"

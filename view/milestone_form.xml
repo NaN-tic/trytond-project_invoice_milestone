@@ -61,9 +61,12 @@
     <label name="invoiced_amount"/>
     <field name="invoiced_amount"/>
 
-    <group id="state_buttons" colspan="4" col="4">
+    <group id="state_buttons" colspan="4" col="6">
         <label name="state"/>
         <field name="state"/>
+        <label name="invoice_state"/>
+        <field name="invoice_state"/>
+
         <group id="buttons" colspan="2" col="10">
             <button name="check_trigger" string="Check Triggers"/>
             <button name="cancel" string="Cancel"/>

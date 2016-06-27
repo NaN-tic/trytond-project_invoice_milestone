@@ -14,6 +14,7 @@
     <field name="advancement_amount"/>
     <field name="invoice"/>
     <field name="invoiced_amount" sum="Invoiced Amount"/>
+    <field name="invoice_state"/>
     <field name="state"/>
     <field name="project_company" tree_invisible="1"/>
     <field name="project_party" tree_invisible="1"/>

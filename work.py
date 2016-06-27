@@ -3,16 +3,38 @@
 import datetime
 from decimal import Decimal
 
-from trytond.model import fields
+from trytond.model import fields, ModelView
 from trytond.pool import PoolMeta, Pool
-from trytond.pyson import Eval
+from trytond.pyson import Eval, Bool
 
-__all__ = ['Work', 'WorkInvoicedProgress']
+__all__ = ['Work', 'WorkInvoicedProgress', 'Certification']
+
+
+class Certification:
+    __name__ = 'project.certification'
+    __metaclass__ = PoolMeta
+
+    @classmethod
+    def confirm(cls, certifications):
+        pool = Pool()
+        Milestone = pool.get('project.invoice_milestone')
+        super(Certification, cls).confirm(certifications)
+        milestones = []
+        for cert in certifications:
+            milestones += cert.work.milestones
+        Milestone.check_trigger(milestones)
 
 
 class Work:
     __name__ = 'project.work'
     __metaclass__ = PoolMeta
+    milestone_group_type = fields.Many2One(
+        'project.invoice_milestone.type.group',
+        'Milestone Group Type',
+        # states={
+        #     'readonly': (Bool(Eval('milestones'))),
+        #     },
+        )
     milestones = fields.One2Many('project.invoice_milestone', 'project',
         'Milestones', states={
             'invisible': ((Eval('type') != 'project') |
@@ -23,6 +45,10 @@ class Work:
     @classmethod
     def __setup__(cls):
         super(Work, cls).__setup__()
+        draft = ('draft', 'Draft')
+        if draft not in cls.state.selection:
+            cls.state.selection.append(draft)
+
         invoice_method = ('milestone', 'Milestones')
         for field_name in ['invoice_method', 'project_invoice_method']:
             field = getattr(cls, field_name)
@@ -32,6 +58,63 @@ class Work:
             cls._buttons['invoice']['invisible'] = (
                 cls._buttons['invoice']['invisible']
                 | (Eval('project_invoice_method', 'milestone') == 'milestone'))
+
+            cls._buttons.update({
+                'create_milestone': {
+                    'invisible': Eval('milestones'),
+                    },
+                })
+        cls._buttons.update({
+                'draft': {
+                    'invisible': Eval('state') == 'draft',
+                    },
+                })
+
+    @staticmethod
+    def default_state():
+        return 'draft'
+
+    @classmethod
+    @ModelView.button
+    def draft(cls, works):
+        for work in works:
+            work.state = 'draft'
+            work.save()
+
+    @classmethod
+    @ModelView.button
+    def open(cls, works):
+        pool = Pool()
+        Milestone = pool.get('project.invoice_milestone')
+        super(Work, cls).open(works)
+        milestones = []
+        for work in works:
+            milestones += work.milestones
+        Milestone.check_trigger(milestones)
+
+    @classmethod
+    @ModelView.button
+    def done(cls, works):
+        pool = Pool()
+        Milestone = pool.get('project.invoice_milestone')
+        super(Work, cls).done(works)
+        milestones = []
+        for work in works:
+            milestones += work.milestones
+        Milestone.check_trigger(milestones)
+
+    @classmethod
+    @ModelView.button
+    def create_milestone(cls, works):
+        pool = Pool()
+        Milestone = pool.get('project.invoice_milestone')
+        milestones = []
+        for work in works:
+            if not work.milestone_group_type:
+                continue
+            milestones += work.milestone_group_type.compute(work)
+        Milestone.save(milestones)
+
 
     @property
     def pending_to_compensate_advanced_amount(self):

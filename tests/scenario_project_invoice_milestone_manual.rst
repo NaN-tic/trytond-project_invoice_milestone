@@ -8,6 +8,7 @@ Imports::
     >>> from dateutil.relativedelta import relativedelta
     >>> from decimal import Decimal
     >>> from proteus import config, Model, Wizard
+    >>> from trytond.modules.currency.tests.tools import get_currency
     >>> from trytond.modules.company.tests.tools import create_company, \
     ...     get_company
     >>> from trytond.modules.account.tests.tools import create_fiscalyear, \
@@ -41,29 +42,13 @@ Reload the context::
     >>> Group = Model.get('res.group')
     >>> config._context = User.get_preferences(True, config.context)
 
-.. TODO
-.. Create project user::
-..
-..     >>> project_user = User()
-..     >>> project_user.name = 'Project'
-..     >>> project_user.login = 'project'
-..     >>> project_user.main_company = company
-..     >>> project_group, = Group.find([('name', '=', 'Project Administration')])
-..     >>> timesheet_group, = Group.find([('name', '=', 'Timesheet Administration')])
-..     >>> project_user.groups.extend([project_group, timesheet_group])
-..     >>> project_user.save()
-..
-.. Create project invoice user::
-..
-..     >>> project_invoice_user = User()
-..     >>> project_invoice_user.name = 'Project Invoice'
-..     >>> project_invoice_user.login = 'project_invoice'
-..     >>> project_invoice_user.main_company = company
-..     >>> project_invoice_group, = Group.find([('name', '=', 'Project Invoice')])
-..     >>> project_group, = Group.find([('name', '=', 'Project Administration')])
-..     >>> project_invoice_user.groups.extend(
-..     ...     [project_invoice_group, project_group])
-..     >>> project_invoice_user.save()
+
+
+Create chart of accounts::
+
+    >>> _ = create_chart(company)
+    >>> accounts = get_accounts(company)
+    >>> revenue = accounts['revenue']
 
 Create fiscal year::
 
@@ -71,12 +56,6 @@ Create fiscal year::
     ...     create_fiscalyear(company))
     >>> fiscalyear.click('create_period')
     >>> period = fiscalyear.periods[0]
-
-Create chart of accounts::
-
-    >>> _ = create_chart(company)
-    >>> accounts = get_accounts(company)
-    >>> revenue = accounts['revenue']
 
 Create payment term::
 
@@ -139,60 +118,66 @@ Create product::
     >>> advancement_product, = template.products
 
 .. Use advancement product for advancement invoices::
-..
-..     >>> AccountConfiguration = Model.get('account.configuration')
-..     >>> milestone_sequence, = Sequence.find([
-..     ...     ('code', '=', 'account.invoice.milestone'),
-..     ...     ], limit=1)
-..     >>> milestone_group_sequence, = Sequence.find([
-..     ...     ('code', '=', 'account.invoice.milestone.group'),
-..     ...     ], limit=1)
-..     >>> account_config = AccountConfiguration(1)
-..     >>> account_config.milestone_advancement_product = advancement
-..     >>> account_config.milestone_sequence = milestone_sequence
-..     >>> account_config.milestone_group_sequence = milestone_group_sequence
-..     >>> account_config.save()
+
+    >>> Sequence = Model.get('ir.sequence')
+    >>> AccountConfiguration = Model.get('project.invoice_milestone.configuration')
+    >>> milestone_sequence, = Sequence.find([
+    ...     ('code', '=', 'project.invoice_milestone'),
+    ...     ], limit=1)
+    >>> account_config = AccountConfiguration(1)
+    >>> account_config.advancement_product = advancement_product
+    >>> account_config.compensation_product = advancement_product
+    >>> account_config.milestone_sequence = milestone_sequence
+    >>> account_config.save()
 
 .. Create Milestone Group Type::
-..
-..     >>> MileStoneType = Model.get('account.invoice.milestone.type')
-..     >>> MileStoneGroupType = Model.get('account.invoice.milestone.group.type')
-..     >>> group_type = MileStoneGroupType(name='Test')
-..     >>> fixed_type = group_type.lines.new()
-..     >>> fixed_type.kind = 'manual'
-..     >>> fixed_type.invoice_method = 'fixed'
-..     >>> fixed_type.amount = Decimal('100.0')
-..     >>> fixed_type.currency = currency
-..     >>> fixed_type.days = 5
-..     >>> fixed_type.description = 'Advancement'
-..     >>> remainder = group_type.lines.new()
-..     >>> remainder.invoice_method = 'remainder'
-..     >>> remainder.kind = 'manual'
-..     >>> remainder.months = 1
-..     >>> remainder.description = 'Once finished'
-..     >>> group_type.save()
 
+    >>> MileStoneType = Model.get('project.invoice_milestone.type')
+    >>> MileStoneGroupType = Model.get('project.invoice_milestone.type.group')
+    >>> group_type = MileStoneGroupType(name='Test')
+    >>> fixed_type = group_type.lines.new()
+    >>> fixed_type.kind = 'system'
+    >>> fixed_type.invoice_method = 'fixed'
+    >>> fixed_type.advancement_amount = Decimal('100.0')
+    >>> fixed_type.currency = get_currency('EUR')
+    >>> fixed_type.days = 0
+    >>> fixed_type.description = 'Advancement'
+    >>> fixed_type.trigger = 'start_project'
+    >>> remainder = group_type.lines.new()
+    >>> remainder.invoice_method = 'remainder'
+    >>> remainder.kind = 'system'
+    >>> remainder.trigger = 'finish_project'
+    >>> remainder.months = 0
+    >>> remainder.description = 'Once finished'
+    >>> group_type.save()
 
-Manual Amount based Milestones
+System Amount based Milestones
 ==============================
 
 One Advancement One Remainder Milestone
 ---------------------------------------
 
 Create a Project::
+.. Create a project with two childs, Service and Goods.
+.. Service: list_price=20, cost_price=5,  Duration = 10h
+.. Goods: list_price=40, cost_price=15, quantity = 5
 
-..    >>> config.user = project_user.id
     >>> ProjectWork = Model.get('project.work')
     >>> TimesheetWork = Model.get('timesheet.work')
+    >>> time_work = TimesheetWork()
+    >>> time_work.name = 'Task 2 - Service'
+    >>> time_work.company = company
+    >>> time_work.save()
+
     >>> project = ProjectWork()
     >>> project.name = 'Advancement and Final remainder milestones'
     >>> project.type = 'project'
     >>> project.party = customer
     >>> project.project_invoice_method = 'milestone'
     >>> project.invoice_product_type = 'service'
-    >>> project.product = service_product
-    >>> project.product_goods = goods_product
-    >>> project.effort_duration = datetime.timedelta(hours=1)
+    >>> project.milestone_group_type = group_type
+    >>> project.save()
+    >>> project.reload()
 
     >>> task = ProjectWork()
     >>> task.name = 'Task 1 - Goods'
@@ -206,148 +191,75 @@ Create a Project::
 
     >>> task = ProjectWork()
     >>> task.name = 'Task 2 - Service'
+    >>> task.work = time_work
     >>> task.type = 'task'
     >>> task.invoice_product_type = 'service'
     >>> task.product = service_product
-    >>> project.effort_duration = datetime.timedelta(hours=10)
+    >>> task.effort_duration = datetime.timedelta(hours=10)
     >>> project.children.append(task)
     >>> project.save()
     >>> service_task = project.children[-1]
 
-Create milestone::
+Assign MilestoneGroup::
 
-    >>> Milestone = Model.get('project.invoice_milestone')
-    >>> advancement_milestone = Milestone()
-    >>> advancement_milestone.project = project
-    >>> advancement_milestone.kind = 'manual'
-    >>> advancement_milestone.invoice_method = 'fixed'
-    >>> advancement_milestone.advancement_product = advancement_product
-    >>> advancement_milestone.advancement_amount = Decimal(1000)
-    >>> advancement_milestone.save()
-
-    >>> remainder_milestone = Milestone()
-    >>> remainder_milestone.project = project
-    >>> remainder_milestone.kind = 'manual'
-    >>> remainder_milestone.invoice_method = 'remainder'
-    >>> remainder_milestone.save()
-
-.. Increase goods task progress::
-..
-..     >>> goods_task.progress_quantity = 3.0
-..     >>> goods_task.save()
-
-.. Create timesheets::
-..
-..     >>> TimesheetLine = Model.get('timesheet.line')
-..     >>> line = TimesheetLine()
-..     >>> line.employee = employee
-..     >>> line.duration = datetime.timedelta(hours=3)
-..     >>> line.work = task.work
-..     >>> line.save()
-..     >>> line = TimesheetLine()
-..     >>> line.employee = employee
-..     >>> line.duration = datetime.timedelta(hours=2)
-..     >>> line.work = project.work
-..     >>> line.save()
-
-Check project duration::
-
+    >>> project.milestone_group_type
+    proteus.Model.get('project.invoice_milestone.type.group')(1)
+    >>> project.click('create_milestone')
     >>> project.reload()
-    >>> project.invoiced_duration
-    datetime.timedelta(0)
-    >>> project.duration_to_invoice
-    datetime.timedelta(0, 18000)
+    >>> len(project.milestones)
+    2
+
+Confirm Milestones::
+    >>> for milestone in project.milestones:
+    ...     milestone.click('confirm')
+
+Start Project::
+
+    >>> project.click('open')
+    >>> project.reload()
+    >>> project.state
+    u'opened'
+
+Check Fixed Amount Milestone:
+
+    >>> fixed_milestone = project.milestones[0]
+    >>> fixed_milestone.state
+    u'invoiced'
+    >>> fixed_milestone.invoice.untaxed_amount
+    Decimal('100.00')
+    >>> fixed_milestone.invoice.click('post')
+
+Finish Project::
+
+    >>> for task in project.children:
+    ...     task.click('done')
+    >>> project.click('done')
+    >>> project.reload()
+    >>> project.state
+    u'done'
+
+Check Reminder Project::
+
+    >>> reminder_milestone = project.milestones[-1]
+    >>> reminder_milestone.state
+    u'invoiced'
+    >>> reminder_milestone.invoice.untaxed_amount
+    Decimal('300.00')
+    >>> project.cost
+    Decimal('75.00')
+    >>> project.revenue
+    Decimal('400.00000')
+    >>> project.invoiced_amount
+    Decimal('400.00')
+
+    >>> reminder_milestone.invoice.click('post')
+    >>> invoice = reminder_milestone.invoice
+
+Make a credit::
+
+    >>> credit = Wizard('account.invoice.credit', [invoice])
+    >>> credit.form.with_refund = True
+    >>> credit.execute('credit')
+    >>> project.reload()
     >>> project.invoiced_amount
     Decimal('0.00')
-
-Create a Sale with lines with service products and goods products::
-
-    >>> Sale = Model.get('sale.sale')
-    >>> SaleLine = Model.get('sale.line')
-    >>> sale = Sale()
-    >>> sale.party = customer
-    >>> sale.milestone_group_type = group_type
-    >>> sale.payment_term = payment_term
-    >>> consumable_line = sale.lines.new()
-    >>> consumable_line.product = consumable
-    >>> consumable_line.quantity = 6.0
-    >>> consumable_line.amount
-    Decimal('180.00')
-    >>> goods_line = sale.lines.new()
-    >>> goods_line.product = product
-    >>> goods_line.quantity = 20.0
-    >>> goods_line.amount
-    Decimal('200.00')
-    >>> sale.click('quote')
-    >>> sale.click('confirm')
-    >>> sale.click('process')
-
-    >>> group = sale.milestone_group
-    >>> group.reload()
-    >>> reminder, = [x for x in group.milestones if x.invoice_method == 'remainder']
-    >>> fixed_milestone, = [x for x in group.milestones if x.invoice_method == 'amount']
-    >>> fixed_milestone.invoice_method
-    u'amount'
-    >>> fixed_milestone.description
-    u'Advancement'
-    >>> fixed_milestone.amount
-    Decimal('100.00')
-    >>> fixed_milestone.click('confirm')
-    >>> remainder.description
-    'Once finished'
-    >>> reminder.click('confirm')
-    >>> group.reload()
-    >>> group.total_amount
-    Decimal('380.00')
-    >>> group.amount_to_assign
-    Decimal('0.00')
-    >>> group.assigned_amount
-    Decimal('380.00')
-    >>> group.invoiced_amount
-    Decimal('0.00')
-    >>> group.merited_amount
-    Decimal('0.00')
-    >>> group.state
-    'pending'
-
-Create a Invoice for the milestone::
-
-    >>> fixed_milestone.click('do_invoice')
-    >>> fixed_milestone.state
-    u'processing'
-    >>> invoice = fixed_milestone.invoice
-    >>> invoice.untaxed_amount
-    Decimal('100.00')
-    >>> invoice_line, = invoice.lines
-    >>> invoice_line.description
-    u'Advancement'
-    >>> group.reload()
-    >>> group.invoiced_amount
-    Decimal('100.00')
-    >>> group.merited_amount
-    Decimal('0.00')
-    >>> group.state
-    'pending'
-
-Test that invoice_amount can not be modified::
-
-    >>> invoice_line, = invoice.lines
-    >>> invoice_line.unit_price = Decimal('110.0')
-    >>> invoice.save()
-    Traceback (most recent call last):
-        ...
-    UserError: ('UserError', (u'Amount of invoice "1 Customer" must be equal than its milestone "1" amount', ''))
-    >>> invoice.reload()
-
-Pay the invoice and check that the milestone is marked as succeeded::
-
-    >>> invoice.click('post')
-    >>> pay = Wizard('account.invoice.pay', [invoice])
-    >>> pay.form.journal = cash_journal
-    >>> pay.execute('choice')
-    >>> invoice.reload()
-    >>> invoice.state
-    u'paid'
-    >>> fixed_milestone.reload()
-    >>> fixed_milestone.state
-    u'succeeded'

@@ -14,7 +14,8 @@ class Invoice:
     __name__ = 'account.invoice'
     __metaclass__ = PoolMeta
 
-    milestone = fields.One2One('account.invoice-project.invoice_milestone',
+    project_milestone = fields.One2One(
+        'account.invoice-project.invoice_milestone',
         'invoice', 'milestone', 'Milestone', domain=[
             ('project_company', '=', Eval('company', -1)),
             ('project_party', '=', Eval('party', -1)),
@@ -57,6 +58,8 @@ class Invoice:
 
     @classmethod
     def credit(cls, invoices, refund=False):
+
+        #TODO: we must do it at post, because you can modify invoices
         pool = Pool()
         Milestone = pool.get('project.invoice_milestone')
         WorkInvoicedProgress = pool.get('project.work.invoiced_progress')
@@ -87,18 +90,13 @@ class Invoice:
 
         milestones_to_create = []
         for invoice, new_invoice in itertools.izip(invoices, new_invoices):
-            if invoice.milestone:
+            if invoice.project_milestone:
                 milestones_to_create.append(
-                    invoice.milestone._credit(new_invoice))
+                    invoice.project_milestone._credit(new_invoice))
         if milestones_to_create:
             Milestone.save(milestones_to_create)
             Milestone.confirm(milestones_to_create)
-            Milestone.proceed(milestones_to_create)
-            milestones_to_succeed = [m for m in milestones_to_create
-                if m.invoice.state in ('posted', 'paid')]
-            if milestones_to_succeed:
-                Milestone.succeed(milestones_to_succeed)
-
+            Milestone.invoiced(milestones_to_create)
         return new_invoices
 
     @classmethod
@@ -118,12 +116,12 @@ class Invoice:
             Milestone.proceed(milestone_to_proceed)
         return res
 
-    @classmethod
-    def post(cls, invoices):
-        pool = Pool()
-        Milestone = pool.get('project.invoice_milestone')
-        super(Invoice, cls).post(invoices)
-        Milestone.succeed([i.milestone for i in invoices if i.milestone])
+    # @classmethod
+    # def post(cls, invoices):
+    #     pool = Pool()
+    #     Milestone = pool.get('project.invoice_milestone')
+    #     super(Invoice, cls).post(invoices)
+    #     Milestone.succeed([i.milestone for i in invoices if i.milestone])
 
     @classmethod
     def cancel(cls, invoices):

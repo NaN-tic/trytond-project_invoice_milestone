@@ -4,7 +4,7 @@
 <tree string="Milestone Type" sequence="sequence">
     <field name="group"/>
     <field name="invoice_method"/>
-    <field name="progress" factor="100">
+    <field name="trigger_progress" factor="100">
         <suffix string="%"/>
     </field>
     <field name="advancement_amount"/>

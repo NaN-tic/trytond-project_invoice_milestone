@@ -2,21 +2,28 @@
 <!-- The COPYRIGHT file at the top level of this repository contains the full
      copyright notices and license terms. -->
 <form string="Milestone Type">
+    <label name="kind"/>
+    <field name="kind"/>
     <label name="invoice_method"/>
     <field name="invoice_method"/>
     <label name="group"/>
     <field name="group"/>
+    <label name="trigger"/>
+    <field name="trigger"/>
+
     <group col="2" id="progress">
-        <field name="progress" factor="100"/>
-        <label name="progress" string="%" xalign="0.0" xexpand="1" xfill="1"/>
+        <field name="trigger_progress" factor="100"/>
+        <label name="trigger_progress" string="%" xalign="0.0" xexpand="1" xfill="1"/>
     </group>
     <separator id="invoicing" string="Invoicing" colspan="4"/>
+    <label name="advancement_product"/>
+    <field name="advancement_product"/>
+    <label name="compensation_product"/>
+    <field name="compensation_product"/>
     <label name="advancement_amount"/>
     <field name="advancement_amount"/>
     <label name="currency"/>
     <field name="currency"/>
-    <label name="advancement_product"/>
-    <field name="advancement_product"/>
     <separator name="description" colspan="4"/>
     <field name="description" colspan="4"/>
     <separator id="invoice_date_calculator" colspan="4"

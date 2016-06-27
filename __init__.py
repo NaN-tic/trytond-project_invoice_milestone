@@ -9,9 +9,10 @@ from .invoice import *
 
 def register():
     Pool.register(
+        Certification,
         Configuration,
-#        MilestoneTypeGroup,
-#        MilestoneType,
+        MilestoneTypeGroup,
+        MilestoneType,
         Milestone,
         Work,
         WorkInvoicedProgress,

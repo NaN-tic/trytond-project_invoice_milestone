@@ -5,4 +5,9 @@
     <xpath expr="/tree/field[@name='cost']" position="after">
         <field name="invoiced_amount"/>
     </xpath>
+
+    <xpath expr="/tree/field[@name='state']"
+            position="after">
+        <button name="draft" string="Draft" tree_invisible="1"/>
+    </xpath>
 </data>

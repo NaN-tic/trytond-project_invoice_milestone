@@ -24,19 +24,6 @@ _TRIGGER = [
 _ZERO = Decimal('0.0')
 
 
-class MilestoneTypeGroup(ModelSQL, ModelView):
-    'Project Invoice Milestone Type Group'
-    __name__ = 'project.invoice_milestone.type.group'
-    name = fields.Char('Name', required=True, translate=True)
-    active = fields.Boolean('Active')
-    description = fields.Char('Description', translate=True)
-    lines = fields.One2Many('project.invoice_milestone.type', 'group', 'Lines')
-
-    @staticmethod
-    def default_active():
-        return True
-
-
 class MilestoneMixin:
 
     kind = fields.Selection(_KIND, 'Kind', required=True, select=True)
@@ -198,6 +185,26 @@ class MilestoneMixin:
         return 0
 
 
+class MilestoneTypeGroup(ModelSQL, ModelView):
+    'Project Invoice Milestone Type Group'
+    __name__ = 'project.invoice_milestone.type.group'
+    name = fields.Char('Name', required=True, translate=True)
+    active = fields.Boolean('Active')
+    description = fields.Char('Description', translate=True)
+    lines = fields.One2Many('project.invoice_milestone.type', 'group', 'Lines')
+
+    @staticmethod
+    def default_active():
+        return True
+
+    def compute(self, project):
+        milestones = []
+        for line in self.lines:
+            milestone = line.compute_milestone(project)
+            milestones.append(milestone)
+        return milestones
+
+
 class MilestoneType(ModelSQL, ModelView, MilestoneMixin):
     'Milestone Type'
     __name__ = 'project.invoice_milestone.type'
@@ -278,14 +285,14 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
             ('company', '=', Eval('project_company', -1)),
             ('party', '=', Eval('project_party', -1)),
             ], readonly=True, depends=['project_company', 'project_party'])
+    invoice_state = fields.Function(fields.Char('Invoice State'),
+        'get_invoice_state')
     invoiced_amount = fields.Function(fields.Numeric('Invoiced Amount'),
         'get_invoiced_amount')
     state = fields.Selection([
             ('draft', 'Draft'),
             ('confirmed', 'Confirmed'),
-            ('processing', 'Processing'),
-            ('succeeded', 'Succeeded'),
-            ('failed', 'Failed'),
+            ('invoiced', 'Invoiced'),
             ('cancel', 'Cancelled'),
             ], 'State', readonly=True, select=True)
 
@@ -306,14 +313,9 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
 
         cls._transitions |= set((
                 ('draft', 'confirmed'),
-                ('confirmed', 'processing'),
-                ('processing', 'succeeded'),
-                ('processing', 'failed'),
-                ('succeeded', 'failed'),  # If invoice is cancelled after post
-                ('succeeded', 'processing'),  # If invoice is draft after post
+                ('confirmed', 'invoiced'),
                 ('draft', 'cancel'),
                 ('confirmed', 'cancel'),
-                ('failed', 'cancel'),
                 ('cancel', 'draft'),
                 ))
         cls._buttons.update({
@@ -359,8 +361,6 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
     @classmethod
     def view_attributes(cls):
         return [
-            # ('/form//group[@id=[@id="fixed_amount"]', 'states',
-                # {'invisible': Eval('invoice_method') != 'fixed'}),
             ('/form//group[@id="invoice_date_calculator"]', 'states',
                 {'invisible': Eval('kind') != 'system'}),
             ]
@@ -384,6 +384,9 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
     def on_change_with_currency(self):
         if self.invoice_method == 'fixed' and self.project:
             return self.project.company.currency.id
+
+    def get_invoice_state(self, name):
+        return self.invoice.state if self.invoice else ''
 
     def get_invoiced_amount(self, name):
         return self.invoice.untaxed_amount if self.invoice else Decimal(0)
@@ -416,7 +419,6 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
         for fname in ('project', 'advancement_product', 'compensation_product',
                 'currency', 'description'):
             setattr(milestone, fname, getattr(self, fname))
-            print "setting %s to milestone: %s" % (fname, getattr(self, fname))
 
         milestone.kind = 'manual'
         milestone.invoice_method = 'fixed'
@@ -433,9 +435,9 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
             milestone.advancement_amount = self.compensation_product
             milestone.advancement_amount = compensation_amount
 
+        milestone.project = self.project
         milestone.invoice_date = credit_invoice.invoice_date
         milestone.invoice = credit_invoice
-        print "credit milestone:", milestone
         return milestone
 
     @classmethod
@@ -457,35 +459,6 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
         cls.set_number(milestones)
         cls.save(milestones)
 
-    @classmethod
-    @Workflow.transition('processing')
-    def proceed(cls, milestones):
-        # TODO: Review
-        pool = Pool()
-        Date = pool.get('ir.date')
-        cls.write(milestones, {
-                'processed_date': Date.today(),
-                })
-
-    @classmethod
-    @Workflow.transition('succeeded')
-    def succeed(cls, milestones):
-        # TODO: Review
-        to_save = []
-        for milestone in milestones:
-            if (milestone.invoice and milestone.invoice.invoice_date
-                    and milestone.invoice.invoice_date
-                    != milestone.invoice_date):
-                milestone.invoice_date = milestone.invoice.invoice_date
-                to_save.append(milestone)
-        if to_save:
-            cls.save(to_save)
-
-    @classmethod
-    @Workflow.transition('failed')
-    def fail(cls, milestones):
-        # TODO: Review
-        pass
 
     @classmethod
     @ModelView.button
@@ -526,11 +499,15 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
         return False
 
     def check_trigger_progress(self):
-        # TODO remove: progress = self.project.total_progress / self.project.total_quantity
-        print "percent_progress_amount:", self.project.percent_progress_amount
         if self.project.percent_progress_amount > self.trigger_progress:
             return True
         return False
+
+    @classmethod
+    @ModelView.button
+    @Workflow.transition('invoiced')
+    def invoiced(cls, milestones):
+        pass
 
     @classmethod
     @ModelView.button
@@ -560,7 +537,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                 continue
 
             invoice = milestone._get_invoice()
-            invoice.milestone = milestone
+            invoice.project_milestone = milestone
             invoice.lines = []
             if inv_line_vals:
                 invoice.save()
@@ -607,10 +584,9 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
             to_proceed.append(milestone)
 
         if invoices:
-            print "invoices:", invoices
             Invoice.update_taxes(Invoice.browse([i.id for i in invoices]))
         if to_proceed:
-            cls.proceed(to_proceed)
+            cls.invoiced(to_proceed)
 
     def _get_invoice(self):
         invoice = self.project._get_invoice()
@@ -633,8 +609,8 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
 
         lines += getattr(
             work, '_get_lines_to_invoice_%s' % self.invoice_method)()
-        print "lines after getting %s.get_lines_to_invoice_%s() => %s" % (
-            work.rec_name, self.invoice_method, lines)
+        # print "lines after getting %s.get_lines_to_invoice_%s() => %s" % (
+            # work.rec_name, self.invoice_method, lines)
         for children in work.children:
             if children.type == 'project':
                 if test != children._test_group_invoice():
