@@ -138,7 +138,7 @@ class MilestoneMixin:
         pool = Pool()
         Config = pool.get('project.invoice_milestone.configuration')
         config = Config.get_singleton()
-        if config.advancement_product:
+        if getattr(config, 'advancement_product', None):
             return config.advancement_product.id
 
     @staticmethod
