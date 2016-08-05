@@ -329,8 +329,10 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                     'icon': 'tryton-ok',
                     },
                 'do_invoice': {
-                    'invisible': ((Eval('state') != 'confirmed')
-                        | Eval('invoice')),
+                    'invisible': (
+                        (Eval('state') != 'confirmed') |
+                        (Eval('kind') != 'manual') |
+                        Eval('invoice')),
                     'icon': 'tryton-ok',
                     },
                 'cancel': {
@@ -340,8 +342,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                     },
                 'check_trigger': {
                     'readonly': Eval('state').in_(
-                            ['draft', 'processing', 'succeeded', 'failed',
-                            'cancel']),
+                            ['draft', 'invoiced', 'cancel']),
                     'icon': 'tryton-executable',
                     },
 
