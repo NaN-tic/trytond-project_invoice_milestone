@@ -72,30 +72,10 @@
 
         <record model="ir.model.button"
                 id="milestone_type_group_create_milestone_button">
-            <field name="name">creat_milestones</field>
+            <field name="name">create_milestones</field>
             <field name="model"
                 search="[('model', '=', 'project.invoice_milestone.type.group')]"/>
         </record>
-        <record model="ir.model.button-res.group"
-                id="milestone_check_triggers_button_group_milestone">
-            <field name="button" ref="milestone_type_group_create_milestone_button"/>
-            <field name="group" ref="group_milestone"/>
-        </record>
-
-
-<!--
-        <record model="ir.model.button"
-                id="milestone_type_group_check_triggers_button">
-            <field name="name">check_trigger</field>
-            <field name="model"
-                search="[('model', '=', 'project.invoice_milestone.type.group')]"/>
-        </record>
-        <record model="ir.model.button-res.group"
-                id="milestone_check_triggers_button_group_milestone">
-            <field name="button" ref="milestone_type_group_check_triggers_button"/>
-            <field name="group" ref="group_milestone"/>
-        </record>
-        -->
 
         <!-- project.invoice_milestone.type -->
         <record model="ir.ui.view" id="milestone_type_view_form">

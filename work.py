@@ -47,7 +47,7 @@ class Work:
         super(Work, cls).__setup__()
         draft = ('draft', 'Draft')
         if draft not in cls.state.selection:
-            cls.state.selection.append(draft)
+            cls.state.selection.insert(0, draft)
 
         invoice_method = ('milestone', 'Milestones')
         for field_name in ['invoice_method', 'project_invoice_method']:
@@ -79,7 +79,7 @@ class Work:
     def draft(cls, works):
         for work in works:
             work.state = 'draft'
-            work.save()
+        works.save()
 
     @classmethod
     @ModelView.button
