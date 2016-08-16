@@ -42,8 +42,6 @@ Reload the context::
     >>> Group = Model.get('res.group')
     >>> config._context = User.get_preferences(True, config.context)
 
-
-
 Create chart of accounts::
 
     >>> _ = create_chart(company)
@@ -117,7 +115,7 @@ Create product::
     >>> template.save()
     >>> advancement_product, = template.products
 
-.. Use advancement product for advancement invoices::
+Use advancement product for advancement invoices::
 
     >>> Sequence = Model.get('ir.sequence')
     >>> AccountConfiguration = Model.get('project.invoice_milestone.configuration')
@@ -130,7 +128,7 @@ Create product::
     >>> account_config.milestone_sequence = milestone_sequence
     >>> account_config.save()
 
-.. Create Milestone Group Type::
+Create Milestone Group Type::
 
     >>> MileStoneType = Model.get('project.invoice_milestone.type')
     >>> MileStoneGroupType = Model.get('project.invoice_milestone.type.group')
@@ -158,9 +156,6 @@ One Advancement One Remainder Milestone
 ---------------------------------------
 
 Create a Project::
-.. Create a project with two childs, Service and Goods.
-.. Service: list_price=20, cost_price=5,  Duration = 10h
-.. Goods: list_price=40, cost_price=15, quantity = 5
 
     >>> ProjectWork = Model.get('project.work')
     >>> TimesheetWork = Model.get('timesheet.work')
@@ -220,7 +215,7 @@ Start Project::
     >>> project.state
     u'opened'
 
-Check Fixed Amount Milestone:
+Check Fixed Amount Milestone::
 
     >>> fixed_milestone = project.milestones[0]
     >>> fixed_milestone.state
