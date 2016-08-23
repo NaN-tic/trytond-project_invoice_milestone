@@ -284,7 +284,8 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
             ('company', '=', Eval('project_company', -1)),
             ('party', '=', Eval('project_party', -1)),
             ], readonly=True, depends=['project_company', 'project_party'])
-    invoice_state = fields.Function(fields.Char('Invoice State'),
+    # Selection items set in __setup__
+    invoice_state = fields.Function(fields.Selection([], 'Invoice State'),
         'get_invoice_state')
     invoiced_amount = fields.Function(fields.Numeric('Invoiced Amount'),
         'get_invoiced_amount')
@@ -297,6 +298,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
 
     @classmethod
     def __setup__(cls):
+        Invoice = Pool().get('account.invoice')
         super(Milestone, cls).__setup__()
         for field_name in ['kind', 'trigger', 'trigger_progress',
                 'invoice_method', 'advancement_product', 'advancement_amount',
@@ -309,6 +311,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                 field.states['readonly'] = (field.states['readonly']
                     | (Eval('state') != 'draft'))
             field.depends.append('state')
+        cls.invoice_state.selection = Invoice.state.selection[:]
 
         cls._transitions |= set((
                 ('draft', 'confirmed'),
