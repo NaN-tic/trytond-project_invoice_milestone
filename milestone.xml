@@ -31,7 +31,7 @@
         </record>
 
         <record model="ir.action.act_window" id="act_milestone_type_group">
-            <field name="name">Milestone Type Group</field>
+            <field name="name">Milestone Type Groups</field>
             <field name="res_model">project.invoice_milestone.type.group</field>
         </record>
         <record model="ir.action.act_window.view"
@@ -83,23 +83,6 @@
             <field name="name">milestone_type_list</field>
         </record>
 
-        <record model="ir.action.act_window" id="act_milestone_type">
-            <field name="name">Milestone Types</field>
-            <field name="res_model">project.invoice_milestone.type</field>
-        </record>
-        <record model="ir.action.act_window.view"
-                id="act_milestone_type_view1">
-            <field name="sequence" eval="10"/>
-            <field name="view" ref="milestone_type_view_list"/>
-            <field name="act_window" ref="act_milestone_type"/>
-        </record>
-        <record model="ir.action.act_window.view"
-                id="act_milestone_type_view2">
-            <field name="sequence" eval="20"/>
-            <field name="view" ref="milestone_type_view_form"/>
-            <field name="act_window" ref="act_milestone_type"/>
-        </record>
-
         <record model="ir.model.access" id="access_milestone_type_milestone">
             <field name="model"
                 search="[('model', '=', 'project.invoice_milestone.type')]"/>
@@ -133,7 +116,7 @@
         </record>
 
         <record model="ir.action.act_window" id="act_milestone">
-            <field name="name">Invoice Milestone</field>
+            <field name="name">Invoice Milestones</field>
             <field name="res_model">project.invoice_milestone</field>
         </record>
         <record model="ir.action.act_window.view" id="act_milestone_view1">
