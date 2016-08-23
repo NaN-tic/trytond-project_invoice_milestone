@@ -18,4 +18,7 @@
     <field name="state"/>
     <field name="project_company" tree_invisible="1"/>
     <field name="project_party" tree_invisible="1"/>
+    <button name="confirm" string="Confirm" tree_invisible="1"/>
+    <button name="check_trigger" string="Check Triggers" tree_invisible="1"/>
+    <button name="do_invoice" string="Invoice" tree_invisible="1"/>
 </tree>

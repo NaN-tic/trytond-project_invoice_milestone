@@ -272,14 +272,13 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
     is_credit = fields.Boolean('Is Credit?', readonly=True)
     invoice_date = fields.Date('Invoice Date', states={
             'readonly': ~Eval('state', '').in_(['draft', 'confirmed']),
-            'required': Eval('state', '').in_(['processing', 'succeeded']),
+            'required': Eval('state', '') == 'invoiced',
             }, depends=['state'])
     planned_invoice_date = fields.Date('Planned Invoice Date',
         states={
             'readonly': Eval('state') != 'draft',
             },
         depends=['state'])
-    processed_date = fields.Date('Processed Date', readonly=True)
     invoice = fields.One2One('account.invoice-project.invoice_milestone',
         'milestone', 'invoice', 'Invoice', domain=[
             ('company', '=', Eval('project_company', -1)),
@@ -316,6 +315,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                 ('confirmed', 'invoiced'),
                 ('draft', 'cancel'),
                 ('confirmed', 'cancel'),
+                ('invoiced', 'cancel'),
                 ('cancel', 'draft'),
                 ))
         cls._buttons.update({
@@ -328,6 +328,11 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                     'invisible': Eval('state') != 'draft',
                     'icon': 'tryton-ok',
                     },
+                'check_trigger': {
+                    'invisible': ((Eval('state') != 'confirmed')
+                        | (Eval('kind') == 'manual')),
+                    'icon': 'tryton-executable',
+                    },
                 'do_invoice': {
                     'invisible': (
                         (Eval('state') != 'confirmed') |
@@ -336,14 +341,8 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                     'icon': 'tryton-ok',
                     },
                 'cancel': {
-                    'invisible': ~Eval('state').in_(
-                            ['draft', 'confirmed', 'failed']),
+                    'invisible': Eval('state') == 'invoiced',
                     'icon': 'tryton-cancel',
-                    },
-                'check_trigger': {
-                    'readonly': Eval('state').in_(
-                            ['draft', 'invoiced', 'cancel']),
-                    'icon': 'tryton-executable',
                     },
 
                 })
@@ -460,11 +459,16 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
         cls.set_number(milestones)
         cls.save(milestones)
 
+    @classmethod
+    @Workflow.transition('invoiced')
+    def invoiced(cls, milestones):
+        pass
 
     @classmethod
     @ModelView.button
     @Workflow.transition('cancel')
     def cancel(cls, milestones):
+        assert all(m.invoice == None for m in milestones)
         # TODO
         pass
 
@@ -506,12 +510,6 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
 
     @classmethod
     @ModelView.button
-    @Workflow.transition('invoiced')
-    def invoiced(cls, milestones):
-        pass
-
-    @classmethod
-    @ModelView.button
     def do_invoice(cls, milestones):
         """
         It's a replica of project.work.invoice()
@@ -522,7 +520,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
 
         today = Date.today()
         invoices = []
-        to_proceed = []
+        to_invoice = []
         for milestone in milestones:
             if not milestone.invoice_date:
                 milestone.invoice_date = milestone._calc_invoice_date()
@@ -530,7 +528,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
             if(milestone.kind == 'system' and milestone.invoice_date > today):
                 continue
             if milestone.invoice:
-                to_proceed.append(milestone)
+                to_invoice.append(milestone)
                 continue
 
             inv_line_vals = milestone._get_line_vals_to_invoice()
@@ -582,12 +580,28 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                     continue
 
             invoices.append(invoice)
-            to_proceed.append(milestone)
+            to_invoice.append(milestone)
 
         if invoices:
             Invoice.update_taxes(Invoice.browse([i.id for i in invoices]))
-        if to_proceed:
-            cls.invoiced(to_proceed)
+        if to_invoice:
+            cls.invoiced(to_invoice)
+
+    def _calc_invoice_date(self):
+        pool = Pool()
+        Date = pool.get('ir.date')
+        today = Date.today()
+        return today + relativedelta(**self._calc_delta())
+
+    def _calc_delta(self):
+        return {
+            'day': self.day,
+            'month': int(self.month) if self.month else None,
+            'days': self.days,
+            'weeks': self.weeks,
+            'months': self.months,
+            'weekday': int(self.weekday) if self.weekday else None,
+            }
 
     def _get_invoice(self):
         invoice = self.project._get_invoice()
@@ -610,8 +624,6 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
 
         lines += getattr(
             work, '_get_lines_to_invoice_%s' % self.invoice_method)()
-        # print "lines after getting %s.get_lines_to_invoice_%s() => %s" % (
-            # work.rec_name, self.invoice_method, lines)
         for children in work.children:
             if children.type == 'project':
                 if test != children._test_group_invoice():
@@ -670,22 +682,6 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
 
         return invoice_line
 
-    def _calc_invoice_date(self):
-        pool = Pool()
-        Date = pool.get('ir.date')
-        today = Date.today()
-        return today + relativedelta(**self._calc_delta())
-
-    def _calc_delta(self):
-        return {
-            'day': self.day,
-            'month': int(self.month) if self.month else None,
-            'days': self.days,
-            'weeks': self.weeks,
-            'months': self.months,
-            'weekday': int(self.weekday) if self.weekday else None,
-            }
-
     def _calc_invoice_line_description(self):
         return self.description or self.number
 
@@ -694,7 +690,6 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
         if default is None:
             default = {}
         default.setdefault('code', None)
-        default.setdefault('processed_date', None)
         default.setdefault('invoice_date', None)
         default.setdefault('invoice', None)
         return super(Milestone, cls).copy(milestones, default)

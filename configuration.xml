@@ -11,7 +11,7 @@ this repository contains the full copyright notices and license terms. -->
 
         <record model="ir.action.act_window"
                 id="act_milestone_configuration_form">
-            <field name="name">Invoice Milestones Configuration</field>
+            <field name="name">Invoice Milestones</field>
             <field name="res_model">project.invoice_milestone.configuration</field>
         </record>
         <record model="ir.action.act_window.view"
@@ -23,9 +23,8 @@ this repository contains the full copyright notices and license terms. -->
 
         <menuitem id="menu_milestone_configuration"
             action="act_milestone_configuration_form"
-            icon="tryton-list"
-            parent="project.menu_configuration"
-            sequence="20"/>
+            parent="project.menu_configuration" sequence="1"
+            icon="tryton-list"/>
         <record model="ir.ui.menu-res.group"
             id="menu_milestone_configuration_group_milestone">
             <field name="menu" ref="menu_milestone_configuration"/>

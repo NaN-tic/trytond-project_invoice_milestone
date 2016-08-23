@@ -70,13 +70,6 @@
             <field name="perm_delete" eval="True"/>
         </record>
 
-        <record model="ir.model.button"
-                id="milestone_type_group_create_milestone_button">
-            <field name="name">create_milestones</field>
-            <field name="model"
-                search="[('model', '=', 'project.invoice_milestone.type.group')]"/>
-        </record>
-
         <!-- project.invoice_milestone.type -->
         <record model="ir.ui.view" id="milestone_type_view_form">
             <field name="model">project.invoice_milestone.type</field>
@@ -168,25 +161,11 @@
             <field name="domain" eval="[('state', '=', 'confirmed')]" pyson="1"/>
         </record>
         <record model="ir.action.act_window.domain"
-                id="act_milestone_domain_processing">
+                id="act_milestone_domain_invoiced">
             <field name="act_window" ref="act_milestone"/>
             <field name="sequence" eval="30"/>
-            <field name="name">Processing</field>
+            <field name="name">Invoiced</field>
             <field name="domain" eval="[('state', '=', 'invoiced')]" pyson="1"/>
-        </record>
-        <!-- <record model="ir.action.act_window.domain"
-                id="act_milestone_domain_succeeded">
-            <field name="act_window" ref="act_milestone"/>
-            <field name="sequence" eval="40"/>
-            <field name="name">Succeeded</field>
-            <field name="domain" eval="[('state', '=', 'succeeded')]" pyson="1" />
-        </record>
- -->        <record model="ir.action.act_window.domain"
-                id="act_milestone_domain_failed">
-            <field name="act_window" ref="act_milestone"/>
-            <field name="sequence" eval="50"/>
-            <field name="name">Failed</field>
-            <field name="domain" eval="[('state', '=', 'cancel')]" pyson="1"/>
         </record>
         <record model="ir.action.act_window.domain"
                 id="act_milestone_domain_all">
@@ -211,6 +190,61 @@
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_delete" eval="True"/>
+        </record>
+
+        <record model="ir.model.button" id="milestone_draft_button">
+            <field name="model"
+                search="[('model', '=', 'project.invoice_milestone')]"/>
+            <field name="name">draft</field>
+        </record>
+        <record model="ir.model.button-res.group"
+                id="milestone_draft_button_group_milestone">
+            <field name="button" ref="milestone_draft_button"/>
+            <field name="group" ref="group_milestone"/>
+        </record>
+
+        <record model="ir.model.button" id="milestone_confirm_button">
+            <field name="model"
+                search="[('model', '=', 'project.invoice_milestone')]"/>
+            <field name="name">confirm</field>
+        </record>
+        <record model="ir.model.button-res.group"
+                id="milestone_confirm_button_group_milestone">
+            <field name="button" ref="milestone_confirm_button"/>
+            <field name="group" ref="group_milestone"/>
+        </record>
+
+        <record model="ir.model.button" id="milestone_check_trigger_button">
+            <field name="model"
+                search="[('model', '=', 'project.invoice_milestone')]"/>
+            <field name="name">check_trigger</field>
+        </record>
+        <record model="ir.model.button-res.group"
+                id="milestone_check_trigger_button_group_milestone">
+            <field name="button" ref="milestone_check_trigger_button"/>
+            <field name="group" ref="group_milestone"/>
+        </record>
+
+        <record model="ir.model.button" id="milestone_do_invoice_button">
+            <field name="model"
+                search="[('model', '=', 'project.invoice_milestone')]"/>
+            <field name="name">do_invoice</field>
+        </record>
+        <record model="ir.model.button-res.group"
+                id="milestone_do_invoice_button_group_milestone">
+            <field name="button" ref="milestone_do_invoice_button"/>
+            <field name="group" ref="group_milestone"/>
+        </record>
+
+        <record model="ir.model.button" id="milestone_cancel_button">
+            <field name="model"
+                search="[('model', '=', 'project.invoice_milestone')]"/>
+            <field name="name">cancel</field>
+        </record>
+        <record model="ir.model.button-res.group"
+                id="milestone_cancel_button_group_milestone">
+            <field name="button" ref="milestone_cancel_button"/>
+            <field name="group" ref="group_milestone"/>
         </record>
 
         <record model="ir.sequence.type" id="sequence_type_milestone">
@@ -239,7 +273,7 @@
             parent="project.menu_configuration"
             sequence="40"/>
         <record model="ir.ui.menu-res.group"
-            id="menu_milestone_type_group_group_milestone">
+                id="menu_milestone_type_group_group_milestone">
             <field name="menu" ref="menu_milestone_type_group"/>
             <field name="group" ref="group_milestone"/>
         </record>
@@ -250,8 +284,8 @@
             sequence="40"/>
         <record model="ir.ui.menu-res.group"
                 id="menu_milestone_group_milestone">
-          <field name="menu" ref="menu_milestone"/>
-          <field name="group" ref="group_milestone"/>
+            <field name="menu" ref="menu_milestone"/>
+            <field name="group" ref="group_milestone"/>
         </record>
     </data>
 </tryton>
