@@ -46,20 +46,9 @@ class Invoice:
     #         self.raise_user_error('milestone_amount',
     #                             (self.rec_name, self.milestone.rec_name))
 
-    # @fields.depends('milestone')
-    # def on_change_with_milestone_group(self):
-    #     if self.milestone:
-    #         return self.milestone.group.id
-    #     return None
-
-    # @classmethod
-    # def search_milestone_group(cls, name, clause):
-    #     return [('milestone.group',) + tuple(clause[1:])]
-
     @classmethod
     def credit(cls, invoices, refund=False):
-
-        #TODO: we must do it at post, because you can modify invoices
+        # TODO: we must do it at post, because you can modify invoices
         pool = Pool()
         Milestone = pool.get('project.invoice_milestone')
         WorkInvoicedProgress = pool.get('project.work.invoiced_progress')
@@ -101,34 +90,11 @@ class Invoice:
 
     @classmethod
     def draft(cls, invoices):
-        pool = Pool()
-        Milestone = pool.get('project.invoice_milestone')
-
-        milestone_to_proceed = []
         for invoice in invoices:
-            if invoice.state == 'cancel' and invoice.milestone:
+            if invoice.state == 'cancel' and invoice.project_milestone:
                 cls.raise_user_error('reset_invoice_milestone')
-            elif invoice.state == 'posted' and invoice.milestone:
-                milestone_to_proceed.append(invoice.milestone)
 
-        res = super(Invoice, cls).draft(invoices)
-        if milestone_to_proceed:
-            Milestone.proceed(milestone_to_proceed)
-        return res
-
-    # @classmethod
-    # def post(cls, invoices):
-    #     pool = Pool()
-    #     Milestone = pool.get('project.invoice_milestone')
-    #     super(Invoice, cls).post(invoices)
-    #     Milestone.succeed([i.milestone for i in invoices if i.milestone])
-
-    @classmethod
-    def cancel(cls, invoices):
-        pool = Pool()
-        Milestone = pool.get('project.invoice_milestone')
-        super(Invoice, cls).cancel(invoices)
-        Milestone.fail([i.milestone for i in invoices if i.milestone])
+        return super(Invoice, cls).draft(invoices)
 
     @classmethod
     def copy(cls, invoices, default=None):
@@ -138,6 +104,15 @@ class Invoice:
             default = default.copy()
         default['milestone'] = None
         return super(Invoice, cls).copy(invoices, default=default)
+
+    @classmethod
+    def delete(cls, invoices):
+        pool = Pool()
+        Milestone = pool.get('project.invoice_milestone')
+        milestones = [i.project_milestone for i in invoices
+                if i.project_milestone]
+        super(Invoice, cls).delete(invoices)
+        Milestone.cancel(milestones)
 
 
 class InvoiceMilestoneRelation(ModelSQL):
