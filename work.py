@@ -5,7 +5,7 @@ from decimal import Decimal
 
 from trytond.model import fields, ModelView
 from trytond.pool import PoolMeta, Pool
-from trytond.pyson import Eval, Bool
+from trytond.pyson import Bool, Eval, Or
 
 __all__ = ['Work', 'WorkInvoicedProgress', 'Certification']
 
@@ -25,22 +25,42 @@ class Certification:
         Milestone.check_trigger(milestones)
 
 
+DRAFT_STATES = {
+    'readonly': Eval('state') != 'draft',
+    }
+OPENED_STATES = {
+    'readonly': Eval('state') != 'opened',
+    }
+DEPENDS = ['state']
+
+
+def update_states(field, new_states, key):
+    assert key in new_states
+    if field.states and key in field.states:
+        field.states[key] = Or(
+            field.states[key], new_states[key])
+    elif field.states:
+        field.states[key] = new_states[key]
+    else:
+        field.states = new_states
+
+
 class Work:
     __name__ = 'project.work'
     __metaclass__ = PoolMeta
     milestone_group_type = fields.Many2One(
-        'project.invoice_milestone.type.group',
-        'Milestone Group Type',
-        # states={
-        #     'readonly': (Bool(Eval('milestones'))),
-        #     },
-        )
+        'project.invoice_milestone.type.group', 'Milestone Group Type',
+        states={
+             'readonly': ((Eval('state') != 'draft')
+                | Bool(Eval('milestones'))),
+             }, depends=['state', 'milestones'])
     milestones = fields.One2Many('project.invoice_milestone', 'project',
         'Milestones', states={
             'invisible': ((Eval('type') != 'project') |
                 (Eval('project_invoice_method') != 'milestone')),
+            'readonly': Eval('state') == 'done',
             },
-        depends=['type', 'project_invoice_method'])
+        depends=['type', 'project_invoice_method', 'state'])
 
     @classmethod
     def __setup__(cls):
@@ -48,26 +68,53 @@ class Work:
         draft = ('draft', 'Draft')
         if draft not in cls.state.selection:
             cls.state.selection.insert(0, draft)
+        for field_name in (
+                'type', 'company', 'work', 'effort_duration',  # project
+                'project_invoice_method',  # project_invoice
+                # project_product
+                'invoice_product_type', 'product_goods', 'uom', 'quantity',
+                ):
+            field = getattr(cls, field_name)
+            update_states(field, DRAFT_STATES, 'readonly')
+            if 'state' not in field.depends:
+                field.depends += DEPENDS
+        for field_name in (
+                'progress',  # project
+                # project_product
+                'progress_quantity', 'progress_quantity_func',
+                'certifications',  # project_certification
+                ):
+            field = getattr(cls, field_name)
+            update_states(field, OPENED_STATES, 'readonly')
+            if 'state' not in field.depends:
+                field.depends += DEPENDS
 
         invoice_method = ('milestone', 'Milestones')
         for field_name in ['invoice_method', 'project_invoice_method']:
             field = getattr(cls, field_name)
             if invoice_method not in field.selection:
                 field.selection.append(invoice_method)
-        if 'invoice' in cls._buttons:
-            cls._buttons['invoice']['invisible'] = (
-                cls._buttons['invoice']['invisible']
-                | (Eval('project_invoice_method', 'milestone') == 'milestone'))
 
-            cls._buttons.update({
-                'create_milestone': {
-                    'invisible': Eval('milestones'),
-                    },
-                })
+        cls._buttons['invoice']['invisible'] = (
+            cls._buttons['invoice']['invisible']
+            | (Eval('project_invoice_method', 'milestone') == 'milestone'))
+
         cls._buttons.update({
                 'draft': {
                     'invisible': Eval('state') == 'draft',
                     },
+                'create_milestone': {
+                    'invisible': Eval('milestones'),
+                    },
+                })
+        cls._error_messages.update({
+                'draft_project_invoiced_milestones': (
+                    'You cannot set to draft the Project "%(project)s" because'
+                    ' almost its milestone "%(milestone)s" is invoiced.'),
+                'done_project_draft_milestones': (
+                    'You cannot set to done the Project "%(project)s" because'
+                    ' almost its milestone "%(milestone)s" is in Draft '
+                    'state.'),
                 })
 
     @staticmethod
@@ -78,6 +125,12 @@ class Work:
     @ModelView.button
     def draft(cls, works):
         for work in works:
+            for milestone in work.milestones:
+                if milestone.state == 'invoiced':
+                    cls.raise_user_error('draft_project_invoiced_milestones', {
+                            'project': work.rec_name,
+                            'milestone': milestone.rec_name,
+                            })
             work.state = 'draft'
         works.save()
 
@@ -100,6 +153,12 @@ class Work:
         super(Work, cls).done(works)
         milestones = []
         for work in works:
+            for milestone in work.milestones:
+                if milestone.state == 'draft':
+                    cls.raise_user_error('done_project_draft_milestones', {
+                            'project': work.rec_name,
+                            'milestone': milestone.rec_name,
+                            })
             milestones += work.milestones
         Milestone.check_trigger(milestones)
 
@@ -114,7 +173,6 @@ class Work:
                 continue
             milestones += work.milestone_group_type.compute(work)
         Milestone.save(milestones)
-
 
     @property
     def pending_to_compensate_advanced_amount(self):

@@ -356,6 +356,9 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                 'reset_milestone_with_invoice': (
                     'You cannot reset to draft the Milestone "%s" because it '
                     'has an invoice. Duplicate it to reinvoice.'),
+                'reset_milestone_done_project': (
+                    'You cannot reset to draft the Milestone "%s" because its '
+                    'project is already done.'),
                 'reset_credit_milestone': (
                     'You cannot reset to draft the Milestone "%s" because it '
                     'is a credit milestone.'),
@@ -450,6 +453,9 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
         for milestone in milestones:
             if milestone.invoice:
                 cls.raise_user_error('reset_milestone_with_invoice',
+                    (milestone.rec_name,))
+            if milestone.project.state == 'done':
+                cls.raise_user_error('reset_milestone_done_project',
                     (milestone.rec_name,))
             if milestone.is_credit:
                 cls.raise_user_error('reset_credit_milestone',
