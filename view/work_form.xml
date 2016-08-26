@@ -11,8 +11,8 @@
         </page>
     </xpath>
 
-    <xpath expr="/form/notebook/page/group/group[@id='buttons']"
-            position="inside">
+    <xpath expr="/form/notebook/page/group/group[@id='buttons']/button[@name='open']"
+            position="before">
         <button name="draft" string="Draft" icon="tryton-go-previous"/>
     </xpath>
 </data>

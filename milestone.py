@@ -344,7 +344,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                     'icon': 'tryton-ok',
                     },
                 'cancel': {
-                    'invisible': Eval('state') == 'invoiced',
+                    'invisible': Eval('state').in_(['invoiced', 'cancel']),
                     'icon': 'tryton-cancel',
                     },
 

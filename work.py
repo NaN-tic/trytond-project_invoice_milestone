@@ -104,7 +104,9 @@ class Work:
                     'invisible': Eval('state') == 'draft',
                     },
                 'create_milestone': {
-                    'invisible': Eval('milestones'),
+                    'invisible': ((Eval('type') != 'project')
+                        | (Eval('project_invoice_method') != 'milestone')
+                        | Eval('milestones')),
                     },
                 })
         cls._error_messages.update({
