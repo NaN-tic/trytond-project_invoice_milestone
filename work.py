@@ -6,6 +6,7 @@ from decimal import Decimal
 from trytond.model import fields, ModelView
 from trytond.pool import PoolMeta, Pool
 from trytond.pyson import Bool, Eval, Or
+from trytond.transaction import Transaction
 
 __all__ = ['Work', 'WorkInvoicedProgress', 'Certification']
 
@@ -51,9 +52,12 @@ class Work:
     milestone_group_type = fields.Many2One(
         'project.invoice_milestone.type.group', 'Milestone Group Type',
         states={
-             'readonly': ((Eval('state') != 'draft')
+            'invisible': ((Eval('type') != 'project') |
+                (Eval('project_invoice_method') != 'milestone')),
+            'readonly': ((Eval('state') != 'draft')
                 | Bool(Eval('milestones'))),
-             }, depends=['state', 'milestones'])
+            },
+        depends=['type', 'state', 'milestones'])
     milestones = fields.One2Many('project.invoice_milestone', 'project',
         'Milestones', states={
             'invisible': ((Eval('type') != 'project') |
@@ -68,11 +72,14 @@ class Work:
         draft = ('draft', 'Draft')
         if draft not in cls.state.selection:
             cls.state.selection.insert(0, draft)
+
+        update_states(cls.type, {
+                'readonly': Eval('id', -1) > 0,
+                }, 'readonly')
+        cls.type.depends.append('id')
+
         for field_name in (
-                'type', 'company', 'work', 'effort_duration',  # project
                 'project_invoice_method',  # project_invoice
-                # project_product
-                'invoice_product_type', 'product_goods', 'uom', 'quantity',
                 ):
             field = getattr(cls, field_name)
             update_states(field, DRAFT_STATES, 'readonly')
@@ -82,7 +89,6 @@ class Work:
                 'progress',  # project
                 # project_product
                 'progress_quantity', 'progress_quantity_func',
-                'certifications',  # project_certification
                 ):
             field = getattr(cls, field_name)
             update_states(field, OPENED_STATES, 'readonly')
@@ -101,7 +107,8 @@ class Work:
 
         cls._buttons.update({
                 'draft': {
-                    'invisible': Eval('state') == 'draft',
+                    'invisible': ((Eval('state') == 'draft')
+                        | (Eval('type') != 'project')),
                     },
                 'create_milestone': {
                     'invisible': ((Eval('type') != 'project')
@@ -110,6 +117,8 @@ class Work:
                     },
                 })
         cls._error_messages.update({
+                'draft_task': ('You cannot set to draft the task "%s". '
+                    'Only projects have "Draft" state.'),
                 'draft_project_invoiced_milestones': (
                     'You cannot set to draft the Project "%(project)s" because'
                     ' almost its milestone "%(milestone)s" is invoiced.'),
@@ -119,14 +128,21 @@ class Work:
                     'state.'),
                 })
 
-    @staticmethod
-    def default_state():
-        return 'draft'
+    @fields.depends('type', 'state')
+    def on_change_with_state(self):
+        if self.id < 0:
+            if self.type == 'project':
+                return 'draft'
+            else:
+                return 'opened'
+        return self.state
 
     @classmethod
     @ModelView.button
     def draft(cls, works):
         for work in works:
+            if work.type != 'project':
+                cls.raise_user_error('draft_task', (work.rec_name,))
             for milestone in work.milestones:
                 if milestone.state == 'invoiced':
                     cls.raise_user_error('draft_project_invoiced_milestones', {
@@ -134,7 +150,8 @@ class Work:
                             'milestone': milestone.rec_name,
                             })
             work.state = 'draft'
-        works.save()
+            work.save()
+        # TODO: change by works.save()
 
     @classmethod
     @ModelView.button
@@ -263,12 +280,25 @@ class Work:
         return []
 
     @classmethod
+    def create(cls, vlist):
+        for vals in vlist:
+            if not vals.get('state') and vals.get('type', '') == 'project':
+                vals['state'] = 'draft'
+            elif not vals.get('state'):
+                vals['state'] = 'opened'
+        return super(Work, cls).create(vlist)
+
+    @classmethod
     def copy(cls, works, default=None):
         if default is None:
             default = {}
         else:
             default = default.copy()
         default['milestones'] = None
+        if default.get('type', '') == 'project':
+            default['state'] = 'draft'
+        else:
+            default['state'] = 'opened'
         return super(Work, cls).copy(works, default=default)
 
 
