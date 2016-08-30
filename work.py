@@ -6,7 +6,6 @@ from decimal import Decimal
 from trytond.model import fields, ModelView
 from trytond.pool import PoolMeta, Pool
 from trytond.pyson import Bool, Eval, Or
-from trytond.transaction import Transaction
 
 __all__ = ['Work', 'WorkInvoicedProgress', 'Certification']
 
@@ -150,8 +149,7 @@ class Work:
                             'milestone': milestone.rec_name,
                             })
             work.state = 'draft'
-            work.save()
-        # TODO: change by works.save()
+        cls.save(works)
 
     @classmethod
     @ModelView.button
