@@ -85,9 +85,9 @@ class Work:
             if 'state' not in field.depends:
                 field.depends += DEPENDS
         for field_name in (
-                'progress',  # project
+                'effort_duration', 'progress',  # project
                 # project_product
-                'progress_quantity', 'progress_quantity_func',
+                'quantity', 'progress_quantity', 'progress_quantity_func',
                 ):
             field = getattr(cls, field_name)
             update_states(field, OPENED_STATES, 'readonly')
@@ -99,6 +99,10 @@ class Work:
             field = getattr(cls, field_name)
             if invoice_method not in field.selection:
                 field.selection.append(invoice_method)
+
+        update_states(cls.duration_to_invoice._field, {
+                'invisible': Eval('invoice_method') == 'milestone',
+                }, 'invisible')
 
         cls._buttons['invoice']['invisible'] = (
             cls._buttons['invoice']['invisible']
