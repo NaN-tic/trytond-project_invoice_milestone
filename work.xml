@@ -34,5 +34,23 @@
             <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"/>
             <field name="act_window" ref="project.act_project_form"/>
         </record>
+
+        <record model="ir.action.act_window" id="act_project_milestones">
+            <field name="name">Milestones</field>
+            <field name="res_model">project.invoice_milestone</field>
+            <field name="domain"
+                eval="[('project', 'in', Eval('active_ids'))]" pyson="1"/>
+        </record>
+        <record model="ir.action.keyword"
+                id="act_open_project_milestones_keyword1">
+            <field name="keyword">form_relate</field>
+            <field name="model">project.work,-1</field>
+            <field name="action" ref="act_project_milestones"/>
+        </record>
+        <record model="ir.action-res.group"
+            id="act_project_milestones-group_milestone">
+            <field name="action" ref="act_project_milestones"/>
+            <field name="group" ref="group_milestone"/>
+        </record>
     </data>
 </tryton>
