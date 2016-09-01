@@ -56,6 +56,12 @@ msgstr ""
 "No puedes volver a borrador el proyecto \"%(project)\" porque al menos su "
 "hito \"%(milestone)s\" está en estado facturado."
 
+msgctxt "error:project.work:"
+msgid "You cannot set to draft the task \"%s\". Only projects have \"Draft\" state."
+msgstr ""
+"No puedes pasar a borrador la tarea \"%s\". Sólo los proyectos tienen estado"
+" borrador."
+
 msgctxt "field:account.invoice,project_milestone:"
 msgid "Milestone"
 msgstr "Hito"
@@ -460,6 +466,14 @@ msgctxt "model:ir.action,name:act_milestone_type_group"
 msgid "Milestone Type Group"
 msgstr "Grupo tipo de hitos"
 
+msgctxt "model:ir.action,name:act_project_milestones"
+msgid "Milestones"
+msgstr "Hitos"
+
+msgctxt "model:ir.action.act_window.domain,name:"
+msgid "Draft"
+msgstr "Borrador"
+
 msgctxt "model:ir.action.act_window.domain,name:act_milestone_domain_all"
 msgid "All"
 msgstr "Todos"
@@ -481,10 +495,6 @@ msgid "Draft"
 msgstr "Borrador"
 
 msgctxt "model:ir.action.act_window.domain,name:act_project_tree_draft"
-msgid "Draft"
-msgstr "Borrador"
-
-msgctxt "model:ir.action.act_window.domain,name:act_task_form_draft"
 msgid "Draft"
 msgstr "Borrador"
 

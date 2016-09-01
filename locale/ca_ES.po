@@ -57,6 +57,12 @@ msgstr ""
 "No pots establir a esborrany el projecte \"%(project)s\" perquè al menys la "
 "seva fita \"%(milestone)s\" està facturada."
 
+msgctxt "error:project.work:"
+msgid "You cannot set to draft the task \"%s\". Only projects have \"Draft\" state."
+msgstr ""
+"No pots passar a borrador la tasca \"%s\". Només els projectes tenen l'estat"
+" \"Borrador\"."
+
 msgctxt "field:account.invoice,project_milestone:"
 msgid "Milestone"
 msgstr "Fita"
@@ -459,6 +465,14 @@ msgctxt "model:ir.action,name:act_milestone_type_group"
 msgid "Milestone Type Group"
 msgstr "Grup tipus de fita"
 
+msgctxt "model:ir.action,name:act_project_milestones"
+msgid "Milestones"
+msgstr "Fites"
+
+msgctxt "model:ir.action.act_window.domain,name:"
+msgid "Draft"
+msgstr "Esborrany"
+
 msgctxt "model:ir.action.act_window.domain,name:act_milestone_domain_all"
 msgid "All"
 msgstr "Totes"
@@ -480,10 +494,6 @@ msgid "Draft"
 msgstr "Esborrany"
 
 msgctxt "model:ir.action.act_window.domain,name:act_project_tree_draft"
-msgid "Draft"
-msgstr "Esborrany"
-
-msgctxt "model:ir.action.act_window.domain,name:act_task_form_draft"
 msgid "Draft"
 msgstr "Esborrany"
 
