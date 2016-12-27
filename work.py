@@ -85,9 +85,9 @@ class Work:
             if 'state' not in field.depends:
                 field.depends += DEPENDS
         for field_name in (
-                'effort_duration', 'progress',  # project
+                'effort_duration', #'progress',  # project
                 # project_product
-                'quantity', 'progress_quantity', 'progress_quantity_func',
+                #'quantity', 'progress_quantity', 'progress_quantity_func',
                 ):
             field = getattr(cls, field_name)
             update_states(field, OPENED_STATES, 'readonly')
