@@ -9,7 +9,7 @@ from .invoice import *
 
 def register():
     Pool.register(
-        Certification,
+#    Certification,
         Configuration,
         MilestoneTypeGroup,
         MilestoneType,
