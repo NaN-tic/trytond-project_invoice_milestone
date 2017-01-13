@@ -7,22 +7,7 @@ from trytond.model import fields, ModelView
 from trytond.pool import PoolMeta, Pool
 from trytond.pyson import Bool, Eval, Or
 
-__all__ = ['Work', 'WorkInvoicedProgress', 'Certification']
-
-
-class Certification:
-    __name__ = 'project.certification'
-    __metaclass__ = PoolMeta
-
-    @classmethod
-    def confirm(cls, certifications):
-        pool = Pool()
-        Milestone = pool.get('project.invoice_milestone')
-        super(Certification, cls).confirm(certifications)
-        milestones = []
-        for cert in certifications:
-            milestones += cert.work.milestones
-        Milestone.check_trigger(milestones)
+__all__ = ['Work', 'WorkInvoicedProgress']
 
 
 DRAFT_STATES = {
