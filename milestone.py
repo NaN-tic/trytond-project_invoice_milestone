@@ -513,7 +513,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
         return False
 
     def check_trigger_progress(self):
-        if self.project.percent_progress_amount > self.trigger_progress:
+        if self.project.percent_progress_amount >= self.trigger_progress:
             return True
         return False
 
