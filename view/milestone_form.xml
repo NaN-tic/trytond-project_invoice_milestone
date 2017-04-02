@@ -36,6 +36,12 @@
         <field name="compensation_product"/>
     </group>
 
+    <group id="invoice_percent" col="2" colspan="2">
+        <label name="invoice_percent"/>
+        <field name="invoice_percent" factor="100" xexpand="0"/>
+        <label name="invoice_percent" string="%" xalign="0.0" xexpand="1"/>
+    </group>
+
     <group id="invoice_date_calculator" colspan="2" col="4"
             string="Invoice Date calculation">
         <label name="months"/>

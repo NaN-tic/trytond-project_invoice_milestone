@@ -8,6 +8,7 @@
         <suffix string="%"/>
     </field>
     <field name="advancement_amount"/>
+    <field name="invoice_percent" factor="100"/>
     <field name="currency"/>
     <field name="months"/>
     <field name="month"/>

@@ -8,13 +8,13 @@
     <field name="invoice_method"/>
     <label name="group"/>
     <field name="group"/>
-    <label name="trigger"/>
-    <field name="trigger"/>
-
     <group col="2" id="progress">
-        <field name="trigger_progress" factor="100"/>
-        <label name="trigger_progress" string="%" xalign="0.0" xexpand="1" xfill="1"/>
+      <label name="trigger"/>
+      <field name="trigger"/>
+      <field name="trigger_progress" factor="100"/>
+      <label name="trigger_progress" string="%" xalign="0.0" xexpand="0" xfill="1"/>
     </group>
+
     <separator id="invoicing" string="Invoicing" colspan="4"/>
     <label name="advancement_product"/>
     <field name="advancement_product"/>
@@ -22,6 +22,11 @@
     <field name="compensation_product"/>
     <label name="advancement_amount"/>
     <field name="advancement_amount"/>
+    <label name="invoice_percent"/>
+    <group col="2" id="invoice_percent" colspan="1">
+        <field name="invoice_percent" factor="100"/>
+        <label name="invoice_percent" string="%" xalign="0.0" xexpand="0" xfill="1"/>
+    </group>
     <label name="currency"/>
     <field name="currency"/>
     <separator name="description" colspan="4"/>

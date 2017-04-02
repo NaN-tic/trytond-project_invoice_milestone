@@ -54,6 +54,7 @@ class MilestoneMixin:
         help="The percentage of progress over the total amount of Project.")
     invoice_method = fields.Selection([
             ('fixed', 'Fixed'),
+            ('percent', 'Percent'),
             ('progress', 'Progress'),
             ('remainder', 'Remainder'),
             ], 'Invoice Method', required=True, sort=False)
@@ -62,6 +63,15 @@ class MilestoneMixin:
             'required': Eval('invoice_method') == 'fixed',
             'invisible': Eval('invoice_method') != 'fixed',
             }, depends=['invoice_method'])
+
+    invoice_percent = fields.Numeric('Invoice Percent',
+        digits=(16, Eval('currency_digits', 2)),
+        states={
+            'required': Eval('invoice_method') == 'percent',
+            'invisible': Eval('invoice_method') != 'percent',
+            },
+        depends=['invoice_method', 'currency_digits'])
+
     advancement_amount = fields.Numeric('Advancement Amount',
         digits=(16, Eval('currency_digits', 2)),
         states={
@@ -73,7 +83,7 @@ class MilestoneMixin:
         'Compensation Product', states={
             'required': Eval('invoice_method').in_(['progress', 'remainder']),
             'invisible': ~Eval('invoice_method').in_(
-                ['progress', 'remainder']),
+                ['percent', 'progress', 'remainder']),
             }, depends=['invoice_method'])
     currency = fields.Many2One('currency.currency', 'Currency',
         states={
@@ -230,6 +240,7 @@ class MilestoneType(ModelSQL, ModelView, MilestoneMixin):
         milestone = Milestone()
         milestone.project = project
         milestone.kind = self.kind
+        milestone.invoice_percent = self.invoice_percent
         if self.kind == 'system':
             milestone.trigger = self.trigger
             milestone.trigger_progress = self.trigger_progress
@@ -549,7 +560,8 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
             invoice.lines = []
             if inv_line_vals:
                 invoice.save()
-            elif milestone.invoice_method not in ('progress', 'remainder'):
+            elif milestone.invoice_method not in ('percent', 'progress',
+                    'remainder'):
                 continue
 
             invoice_amount = Decimal(0)
@@ -559,6 +571,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                 key = dict(key)
                 invoice_line = milestone.project._get_invoice_line(
                     key, invoice, grouped_inv_line_vals)
+
                 invoice_line.invoice = invoice
                 invoice_line.save()
                 invoice_amount += invoice_line.amount
@@ -566,17 +579,20 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                 origins = {}
                 for line_vals in grouped_inv_line_vals:
                     origin = line_vals.get('origin', None)
+
                     if origin:
                         origin.invoice_line = invoice_line
                         origins.setdefault(origin.__class__, []).append(origin)
                 for klass, records in origins.iteritems():
                     klass.save(records)  # Store first new origins
+                    print klass, records
+
                     # TODO: remove
                     # klass.write(records, {
                     #         'invoice_line': invoice_line.id,
                     #         })
 
-            if milestone.invoice_method in ('progress', 'remainder'):
+            if milestone.invoice_method in ('percent', 'progress', 'remainder'):
                 invoice_line = milestone._get_compensation_invoice_line(
                     invoice_amount)
                 if invoice_line:
@@ -625,6 +641,9 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
         if self.invoice_method == 'fixed':
             return self._get_line_vals_to_invoice_fixed()
 
+        if self.invoice_method == 'percent':
+            return self._get_line_vals_to_invoice_percent()
+
         lines = []
         if work is None:
             work = self.project
@@ -650,6 +669,24 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                 'unit': self.advancement_product.default_uom,
                 'unit_price': abs(amount),
                 'origin': '',
+                'description': self._calc_invoice_line_description(),
+                }]
+
+    def _get_line_vals_to_invoice_percent(self):
+        pool = Pool()
+        InvoicedProgress = pool.get('project.work.invoiced_progress')
+
+        if self.state != 'confirmed' or self.invoice:
+            return []
+        quantity = self.project.quantity * float(self.invoice_percent)
+        invoiced_progress = InvoicedProgress(work=self.project,
+            quantity=quantity)
+        return [{
+                'product': self.project.product_goods,
+                'quantity': quantity,
+                'unit': self.project.product_goods.default_uom,
+                'unit_price': abs(self.project.list_price),
+                'origin': invoiced_progress,
                 'description': self._calc_invoice_line_description(),
                 }]
 
