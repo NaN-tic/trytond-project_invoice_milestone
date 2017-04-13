@@ -65,7 +65,7 @@ class MilestoneMixin:
             }, depends=['invoice_method'])
 
     invoice_percent = fields.Numeric('Invoice Percent',
-        digits=(16, Eval('currency_digits', 2)),
+        digits=(16, 2),
         states={
             'required': Eval('invoice_method') == 'percent',
             'invisible': Eval('invoice_method') != 'percent',
@@ -678,7 +678,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
 
         if self.state != 'confirmed' or self.invoice:
             return []
-        quantity = self.project.quantity * float(self.invoice_percent)
+        quantity = self.project.quantity * float(self.invoice_percent/100)
         invoiced_progress = InvoicedProgress(work=self.project,
             quantity=quantity)
         return [{

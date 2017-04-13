@@ -38,7 +38,7 @@
 
     <group id="invoice_percent" col="2" colspan="2">
         <label name="invoice_percent"/>
-        <field name="invoice_percent" factor="100" xexpand="0"/>
+        <field name="invoice_percent" xexpand="0"/>
         <label name="invoice_percent" string="%" xalign="0.0" xexpand="1"/>
     </group>
 
