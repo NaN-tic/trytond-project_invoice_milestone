@@ -20,12 +20,10 @@ _TRIGGER = [
     ('progress', 'On % Progress'),
     ('finish_project', 'On Project Finish'),
     ]
-
 _ZERO = Decimal('0.0')
 
 
 class MilestoneMixin:
-
     kind = fields.Selection(_KIND, 'Kind', required=True, select=True)
     trigger = fields.Selection(_TRIGGER, 'Trigger', sort=False,
         states={
@@ -63,7 +61,6 @@ class MilestoneMixin:
             'required': Eval('invoice_method') == 'fixed',
             'invisible': Eval('invoice_method') != 'fixed',
             }, depends=['invoice_method'])
-
     invoice_percent = fields.Numeric('Invoice Percent',
         digits=(16, 2),
         states={
@@ -71,7 +68,6 @@ class MilestoneMixin:
             'invisible': Eval('invoice_method') != 'percent',
             },
         depends=['invoice_method', 'currency_digits'])
-
     advancement_amount = fields.Numeric('Advancement Amount',
         digits=(16, Eval('currency_digits', 2)),
         states={
@@ -431,6 +427,11 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
             milestone.number = Sequence.get_id(config.milestone_sequence.id)
 
     def _credit(self, credit_invoice):
+        pool = Pool()
+        Config = pool.get('project.invoice_milestone.configuration')
+        Date = pool.get('ir.date')
+
+        config = Config(1)
         milestone = self.__class__()
 
         for fname in ('project', 'advancement_product', 'compensation_product',
@@ -440,6 +441,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
         milestone.kind = 'manual'
         milestone.invoice_method = 'fixed'
         milestone.is_credit = True
+
         if self.invoice_method == 'fixed':
             milestone.advancement_amount = -self.advancement_amount
         else:
@@ -449,11 +451,11 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                 if inv_line.origin == self:
                     compensation_amount = -inv_line.amount
                     break
-            milestone.advancement_amount = self.compensation_product
             milestone.advancement_amount = compensation_amount
+        milestone.advancement_product = config.advancement_product
 
         milestone.project = self.project
-        milestone.invoice_date = credit_invoice.invoice_date
+        milestone.invoice_date = credit_invoice.invoice_date or Date.today()
         milestone.invoice = credit_invoice
         return milestone
 
@@ -673,12 +675,11 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                 }]
 
     def _get_line_vals_to_invoice_percent(self):
-        pool = Pool()
-        InvoicedProgress = pool.get('project.work.invoiced_progress')
+        InvoicedProgress = Pool().get('project.work.invoiced_progress')
 
         if self.state != 'confirmed' or self.invoice:
             return []
-        quantity = self.project.quantity * float(self.invoice_percent/100)
+        quantity = self.project.quantity * float(self.invoice_percent)
         invoiced_progress = InvoicedProgress(work=self.project,
             quantity=quantity)
         return [{

@@ -82,6 +82,7 @@ class Invoice:
             if invoice.project_milestone:
                 milestones_to_create.append(
                     invoice.project_milestone._credit(new_invoice))
+
         if milestones_to_create:
             Milestone.save(milestones_to_create)
             Milestone.confirm(milestones_to_create)

@@ -114,7 +114,21 @@ class Work:
                     'You cannot set to done the Project "%(project)s" because'
                     ' almost its milestone "%(milestone)s" is in Draft '
                     'state.'),
+                'invoice_method_product_type': ('Can not select the Invoice Method'
+                    ' "%s" and Invoice Product Type "%s"'),
                 })
+
+    @classmethod
+    def validate(cls, works):
+        super(Work, cls).validate(works)
+        for work in works:
+            work.check_invoice_method_product_type()
+
+    def check_invoice_method_product_type(self):
+        if self.project_invoice_method == 'milestone' \
+                and not self.invoice_product_type == 'goods':
+            self.raise_user_error('invoice_method_product_type',
+                (self.invoice_method, self.invoice_product_type))
 
     @fields.depends('type', 'state')
     def on_change_with_state(self):
