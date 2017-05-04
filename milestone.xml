@@ -270,5 +270,31 @@
             <field name="menu" ref="menu_milestone"/>
             <field name="group" ref="group_milestone"/>
         </record>
+
+        <!-- Cron -->
+        <record model="res.user" id="user_check_triggers">
+            <field name="login">user_cron_milestone_triggers</field>
+            <field name="name">Cron Milestone Triggers</field>
+            <field name="signature"></field>
+            <field name="active" eval="False"/>
+        </record>
+        <record model="res.user-res.group"
+            id="user_check_triggers_group_milestone">
+            <field name="user" ref="user_check_triggers"/>
+            <field name="group" ref="group_milestone"/>
+        </record>
+
+        <record model="ir.cron" id="cron_check_milestone_triggers">
+            <field name="name">Check Milestone Triggers</field>
+            <field name="request_user" ref="res.user_admin"/>
+            <field name="user" ref="user_check_triggers"/>
+            <field name="active" eval="True"/>
+            <field name="interval_number" eval="1"/>
+            <field name="interval_type">days</field>
+            <field name="number_calls" eval="-1"/>
+            <field name="repeat_missed" eval="False"/>
+            <field name="model">project.invoice_milestone</field>
+            <field name="function">cron_check_triggers</field>
+        </record>
     </data>
 </tryton>

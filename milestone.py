@@ -319,7 +319,6 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                     | (Eval('state') != 'draft'))
             field.depends.append('state')
         cls.invoice_state.selection = Invoice.state.selection[:]
-
         cls._transitions |= set((
                 ('draft', 'confirmed'),
                 ('confirmed', 'invoiced'),
@@ -458,6 +457,17 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
         milestone.invoice_date = credit_invoice.invoice_date or Date.today()
         milestone.invoice = credit_invoice
         return milestone
+
+    @classmethod
+    def cron_check_triggers(cls):
+        'Cron Check Triggers'
+        milestones = cls.search([
+            ('state', '=', 'confirm'),
+            ('kind', '=', 'system'),
+            ('invoice', '=', None),
+            ])
+        if milestones:
+            cls.check_trigger(milestones)
 
     @classmethod
     @ModelView.button
