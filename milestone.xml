@@ -273,7 +273,7 @@
 
         <!-- Cron -->
         <record model="res.user" id="user_check_triggers">
-            <field name="login">user_cron_milestone_triggers</field>
+            <field name="login">user_cron_check_milestone_triggers</field>
             <field name="name">Cron Milestone Triggers</field>
             <field name="signature"></field>
             <field name="active" eval="False"/>
