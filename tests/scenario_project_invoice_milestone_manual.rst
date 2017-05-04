@@ -169,8 +169,10 @@ Create a Project::
     >>> project.type = 'project'
     >>> project.party = customer
     >>> project.project_invoice_method = 'milestone'
-    >>> project.invoice_product_type = 'service'
+    >>> project.invoice_product_type = 'goods'
     >>> project.milestone_group_type = group_type
+    >>> project.progress_quantity = 0.0
+    >>> project.product_goods = goods_product
     >>> project.save()
     >>> project.reload()
 
@@ -180,6 +182,7 @@ Create a Project::
     >>> task.invoice_product_type = 'goods'
     >>> task.product_goods = goods_product
     >>> task.quantity = 5.0
+    >>> task.progress_quantity = 0.0
     >>> project.children.append(task)
     >>> project.save()
     >>> goods_task = project.children[-1]
@@ -239,16 +242,17 @@ Check Reminder Project::
     >>> reminder_milestone.state
     u'invoiced'
     >>> reminder_milestone.invoice.untaxed_amount
-    Decimal('300.00')
+    Decimal('340.00')
     >>> project.cost
-    Decimal('75.00')
+    Decimal('0.00')
     >>> project.revenue
-    Decimal('400.00000')
+    Decimal('200.00000')
     >>> project.invoiced_amount
-    Decimal('400.00')
-
+    Decimal('440.00')
     >>> reminder_milestone.invoice.click('post')
     >>> invoice = reminder_milestone.invoice
+    >>> invoice.untaxed_amount
+    Decimal('340.00')
 
 Make a credit::
 

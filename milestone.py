@@ -597,12 +597,6 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                         origins.setdefault(origin.__class__, []).append(origin)
                 for klass, records in origins.iteritems():
                     klass.save(records)  # Store first new origins
-                    print klass, records
-
-                    # TODO: remove
-                    # klass.write(records, {
-                    #         'invoice_line': invoice_line.id,
-                    #         })
 
             if milestone.invoice_method in ('percent', 'progress', 'remainder'):
                 invoice_line = milestone._get_compensation_invoice_line(
