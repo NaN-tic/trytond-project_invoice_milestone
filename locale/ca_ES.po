@@ -479,6 +479,10 @@ msgctxt "model:ir.action,name:act_milestone_configuration_form"
 msgid "Invoice Milestones"
 msgstr "Fites facturació"
 
+msgctxt "model:ir.action,name:act_milestone_remainders"
+msgid "Milestones to Check"
+msgstr "Fites a comprovar"
+
 msgctxt "model:ir.action,name:act_milestone_type_group"
 msgid "Milestone Type Groups"
 msgstr "Grups tipus de fita"
@@ -534,6 +538,10 @@ msgstr "Fites facturació"
 msgctxt "model:ir.ui.menu,name:menu_milestone_configuration"
 msgid "Invoice Milestones"
 msgstr "Fites facturació"
+
+msgctxt "model:ir.ui.menu,name:menu_milestone_remainders"
+msgid "Milestones to Check"
+msgstr "Fites a comporvar"
 
 msgctxt "model:ir.ui.menu,name:menu_milestone_type_group"
 msgid "Milestone Type Groups"
@@ -607,9 +615,13 @@ msgctxt "selection:project.invoice_milestone,kind:"
 msgid "System"
 msgstr "Sistema"
 
+#, fuzzy
 msgctxt "selection:project.invoice_milestone,month:"
 msgid ""
 msgstr ""
+"-        DISPLAY CABINA :\n"
+"\n"
+"Se integrará en la botonera de cabina una pantalla digital (DISPLAY)  para así mantener informado al usuario en todo momento en la planta que se encuentra el ascensor. Y mediante flechas en la misma pantalla indicará al cliente el sentido de marcha actual que tiene el ascensor."
 
 msgctxt "selection:project.invoice_milestone,month:"
 msgid "April"
@@ -675,9 +687,13 @@ msgctxt "selection:project.invoice_milestone,state:"
 msgid "Invoiced"
 msgstr "Facturada"
 
+#, fuzzy
 msgctxt "selection:project.invoice_milestone,trigger:"
 msgid ""
 msgstr ""
+"-        DISPLAY CABINA :\n"
+"\n"
+"Se integrará en la botonera de cabina una pantalla digital (DISPLAY)  para así mantener informado al usuario en todo momento en la planta que se encuentra el ascensor. Y mediante flechas en la misma pantalla indicará al cliente el sentido de marcha actual que tiene el ascensor."
 
 msgctxt "selection:project.invoice_milestone,trigger:"
 msgid "On % Progress"
@@ -691,9 +707,13 @@ msgctxt "selection:project.invoice_milestone,trigger:"
 msgid "On Project Start"
 msgstr "Al començar el projecte"
 
+#, fuzzy
 msgctxt "selection:project.invoice_milestone,weekday:"
 msgid ""
 msgstr ""
+"-        DISPLAY CABINA :\n"
+"\n"
+"Se integrará en la botonera de cabina una pantalla digital (DISPLAY)  para así mantener informado al usuario en todo momento en la planta que se encuentra el ascensor. Y mediante flechas en la misma pantalla indicará al cliente el sentido de marcha actual que tiene el ascensor."
 
 msgctxt "selection:project.invoice_milestone,weekday:"
 msgid "Friday"
@@ -747,9 +767,13 @@ msgctxt "selection:project.invoice_milestone.type,kind:"
 msgid "System"
 msgstr "Sistema"
 
+#, fuzzy
 msgctxt "selection:project.invoice_milestone.type,month:"
 msgid ""
 msgstr ""
+"-        DISPLAY CABINA :\n"
+"\n"
+"Se integrará en la botonera de cabina una pantalla digital (DISPLAY)  para así mantener informado al usuario en todo momento en la planta que se encuentra el ascensor. Y mediante flechas en la misma pantalla indicará al cliente el sentido de marcha actual que tiene el ascensor."
 
 msgctxt "selection:project.invoice_milestone.type,month:"
 msgid "April"
@@ -799,9 +823,13 @@ msgctxt "selection:project.invoice_milestone.type,month:"
 msgid "September"
 msgstr "Setembre"
 
+#, fuzzy
 msgctxt "selection:project.invoice_milestone.type,trigger:"
 msgid ""
 msgstr ""
+"-        DISPLAY CABINA :\n"
+"\n"
+"Se integrará en la botonera de cabina una pantalla digital (DISPLAY)  para así mantener informado al usuario en todo momento en la planta que se encuentra el ascensor. Y mediante flechas en la misma pantalla indicará al cliente el sentido de marcha actual que tiene el ascensor."
 
 msgctxt "selection:project.invoice_milestone.type,trigger:"
 msgid "On % Progress"
@@ -815,9 +843,13 @@ msgctxt "selection:project.invoice_milestone.type,trigger:"
 msgid "On Project Start"
 msgstr "Al començar el projecte"
 
+#, fuzzy
 msgctxt "selection:project.invoice_milestone.type,weekday:"
 msgid ""
 msgstr ""
+"-        DISPLAY CABINA :\n"
+"\n"
+"Se integrará en la botonera de cabina una pantalla digital (DISPLAY)  para así mantener informado al usuario en todo momento en la planta que se encuentra el ascensor. Y mediante flechas en la misma pantalla indicará al cliente el sentido de marcha actual que tiene el ascensor."
 
 msgctxt "selection:project.invoice_milestone.type,weekday:"
 msgid "Friday"

@@ -293,7 +293,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
             ], readonly=True, depends=['project_company', 'project_party'])
     # Selection items set in __setup__
     invoice_state = fields.Function(fields.Selection([], 'Invoice State'),
-        'get_invoice_state')
+        'get_invoice_state', searcher='search_invoice_state')
     invoiced_amount = fields.Function(fields.Numeric('Invoiced Amount'),
         'get_invoiced_amount')
     state = fields.Selection([
@@ -396,6 +396,10 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
     def on_change_with_currency(self):
         if self.invoice_method == 'fixed' and self.project:
             return self.project.company.currency.id
+
+    @classmethod
+    def search_invoice_state(cls, name, clause):
+        return [('invoice.state',) + tuple(clause[1:])]
 
     def get_invoice_state(self, name):
         return self.invoice.state if self.invoice else ''

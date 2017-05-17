@@ -102,6 +102,7 @@
             <field name="perm_delete" eval="True"/>
         </record>
 
+
         <!-- project.invoice_milestone -->
         <record model="ir.ui.view" id="milestone_view_form">
             <field name="model">project.invoice_milestone</field>
@@ -250,6 +251,20 @@
             <field name="code">project.invoice_milestone</field>
         </record>
 
+        <record model="ir.action.act_window" id="act_milestone_remainders">
+            <field name="name">Milestones to Check</field>
+            <field name="res_model">project.invoice_milestone</field>
+            <field name="domain" eval="[('invoice_method', '=', 'remainder'),
+                ('invoice_state', '!=', 'paid'),
+                ('invoice_date', '!=', None)]" pyson="1"/>
+        </record>
+        <record model="ir.action.act_window.view"
+                id="act_milestone_remainders_view">
+            <field name="act_window" ref="act_milestone_remainders"/>
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="milestone_view_list"/>
+        </record>
+
         <!-- menus -->
         <menuitem id="menu_milestone_type_group"
             action="act_milestone_type_group"
@@ -270,6 +285,10 @@
             <field name="menu" ref="menu_milestone"/>
             <field name="group" ref="group_milestone"/>
         </record>
+
+        <menuitem action="act_milestone_remainders"
+            id="menu_milestone_remainders"
+            parent="project.menu_project" sequence="10"/>
 
         <!-- Cron -->
         <record model="res.user" id="user_check_triggers">
