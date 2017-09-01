@@ -2,7 +2,7 @@
 # copyright notices and license terms.
 from trytond.model import Workflow, ModelSQL, ModelView, fields
 from trytond.pool import Pool
-from trytond.pyson import Eval, Bool
+from trytond.pyson import Bool, Eval, If
 from trytond.transaction import Transaction
 from dateutil.relativedelta import relativedelta
 from decimal import Decimal
@@ -264,6 +264,8 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
         ondelete='CASCADE', select=True, domain=[
             ('type', '=', 'project'),
             ('project_invoice_method', '=', 'milestone'),
+            ('company', If(Eval('context', {}).contains('company'), '=', '!='),
+                Eval('context', {}).get('company', -1)),
             ],
         states={
             'readonly': Eval('state') != 'draft',

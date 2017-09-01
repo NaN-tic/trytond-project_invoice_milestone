@@ -158,6 +158,17 @@
             <field name="name">All</field>
         </record>
 
+        <record model="ir.rule.group" id="rule_group_invoice_milestone">
+            <field name="model" search="[('model', '=', 'project.invoice_milestone')]"/>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_invoice_milestone1">
+            <field name="domain"
+                eval="[('project_company', '=', Eval('user', {}).get('company', None))]"
+                pyson="1"/>
+            <field name="rule_group" ref="rule_group_invoice_milestone"/>
+        </record>
+
         <record model="ir.model.access" id="access_milestone">
             <field name="model"
                 search="[('model', '=', 'project.invoice_milestone')]"/>
