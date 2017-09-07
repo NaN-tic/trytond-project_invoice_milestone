@@ -108,8 +108,8 @@ class Work:
                 'draft_task': ('You cannot set to draft the task "%s". '
                     'Only projects have "Draft" state.'),
                 'draft_project_invoiced_milestones': (
-                    'You cannot set to draft the Project "%(project)s" because'
-                    ' almost its milestone "%(milestone)s" is invoiced.'),
+                    'You cannot set to draft the Project "%s" because'
+                    ' almost its milestone "%s" is invoiced.'),
                 'done_project_draft_milestones': (
                     'You cannot set to done the Project "%(project)s" because'
                     ' almost its milestone "%(milestone)s" is in Draft '
@@ -147,10 +147,8 @@ class Work:
                 cls.raise_user_error('draft_task', (work.rec_name,))
             for milestone in work.milestones:
                 if milestone.state == 'invoiced':
-                    cls.raise_user_error('draft_project_invoiced_milestones', {
-                            'project': work.rec_name,
-                            'milestone': milestone.rec_name,
-                            })
+                    cls.raise_user_error('draft_project_invoiced_milestones',
+                            (work.rec_name, milestone.rec_name, ))
             work.state = 'draft'
         cls.save(works)
 

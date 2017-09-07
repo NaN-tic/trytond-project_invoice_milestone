@@ -276,7 +276,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
         'on_change_with_project_company', searcher='search_project_field')
     project_party = fields.Function(fields.Many2One('party.party',
             'Project Party'),
-        'on_change_with_project_party', searcher='searproject_partych_project_field')
+        'on_change_with_project_party', searcher='search_project_field')
 
     is_credit = fields.Boolean('Is Credit?', readonly=True)
     invoice_date = fields.Date('Invoice Date', states={
