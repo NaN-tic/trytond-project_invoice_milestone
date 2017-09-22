@@ -187,7 +187,7 @@ class Work:
         Milestone = pool.get('project.invoice_milestone')
         milestones = []
         for work in works:
-            if not work.milestone_group_type:
+            if not work.milestone_group_type or work.milestones:
                 continue
             milestones += work.milestone_group_type.compute(work)
         Milestone.save(milestones)
