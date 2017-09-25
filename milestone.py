@@ -62,7 +62,7 @@ class MilestoneMixin:
             'invisible': Eval('invoice_method') != 'fixed',
             }, depends=['invoice_method'])
     invoice_percent = fields.Numeric('Invoice Percent',
-        digits=(16, 2),
+        digits=(16, 8),
         states={
             'required': Eval('invoice_method') == 'percent',
             'invisible': Eval('invoice_method') != 'percent',
