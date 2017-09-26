@@ -52,12 +52,11 @@
             <field name="model"
                 search="[('model', '=', 'project.invoice_milestone.type.group')]"
                 pyson="1"/>
-            <field name="perm_read" eval="False"/>
+            <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>
         </record>
-
         <record model="ir.model.access"
                 id="access_milestone_type_group_admin">
             <field name="model"
@@ -101,7 +100,6 @@
             <field name="perm_create" eval="True"/>
             <field name="perm_delete" eval="True"/>
         </record>
-
 
         <!-- project.invoice_milestone -->
         <record model="ir.ui.view" id="milestone_view_form">
