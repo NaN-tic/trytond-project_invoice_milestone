@@ -329,6 +329,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                 ('invoiced', 'cancel'),
                 ('cancel', 'draft'),
                 ))
+        cls.invoice_state.selection += [(None, '')]
         cls._buttons.update({
                 'draft': {
                     'invisible': ((Eval('state') != 'cancel')
@@ -405,7 +406,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
         return [('invoice.state',) + tuple(clause[1:])]
 
     def get_invoice_state(self, name):
-        return self.invoice.state if self.invoice else ''
+        return self.invoice.state if self.invoice else None
 
     def get_invoiced_amount(self, name):
         return self.invoice.untaxed_amount if self.invoice else Decimal(0)
