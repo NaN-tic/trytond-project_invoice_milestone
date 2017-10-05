@@ -127,9 +127,8 @@ class MilestoneMixin:
             ])
     description = fields.Text('Description',
         help='It will be used to prepare the description field of invoice '
-        'lines.\nYou can use the next tags and they will be replaced by these '
-        'fields from the sale\'s related to milestone: {sale_description}, '
-        '{sale_reference}.')
+        'lines.\nYou can use tags and they will be replaced by these '
+        'fields from the record related to milestone: {{ record.rec_name }}.')
 
     @staticmethod
     def default_kind():
