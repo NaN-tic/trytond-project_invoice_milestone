@@ -7,6 +7,7 @@ from trytond.transaction import Transaction
 from dateutil.relativedelta import relativedelta
 from decimal import Decimal
 from itertools import groupby
+from jinja2 import Template as Jinja2Template
 
 __all__ = ['MilestoneTypeGroup', 'MilestoneType', 'Milestone']
 
@@ -740,8 +741,19 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
 
         return invoice_line
 
+    @staticmethod
+    def template_context(record):
+        """Generate the tempalte context"""
+        return {
+            'record': record,
+            }
+
     def _calc_invoice_line_description(self):
-        return self.description or self.number
+        if self.description:
+            template = Jinja2Template(self.description)
+            template_context = self.template_context(self)
+            return template.render(template_context)
+        return self.number
 
     @classmethod
     def copy(cls, milestones, default=None):

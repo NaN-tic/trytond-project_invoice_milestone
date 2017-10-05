@@ -139,14 +139,14 @@ Create Milestone Group Type::
     >>> fixed_type.advancement_amount = Decimal('100.0')
     >>> fixed_type.currency = get_currency('EUR')
     >>> fixed_type.days = 0
-    >>> fixed_type.description = 'Advancement'
+    >>> fixed_type.description = 'Advancement {{ record.rec_name }}'
     >>> fixed_type.trigger = 'start_project'
     >>> remainder = group_type.lines.new()
     >>> remainder.invoice_method = 'remainder'
     >>> remainder.kind = 'system'
     >>> remainder.trigger = 'finish_project'
     >>> remainder.months = 0
-    >>> remainder.description = 'Once finished'
+    >>> remainder.description = 'Once finished {{ record.rec_name }}'
     >>> group_type.save()
 
 System Amount based Milestones
@@ -208,6 +208,7 @@ Assign MilestoneGroup::
     2
 
 Confirm Milestones::
+
     >>> for milestone in project.milestones:
     ...     milestone.click('confirm')
 
@@ -226,6 +227,19 @@ Check Fixed Amount Milestone::
     >>> fixed_milestone.invoice.untaxed_amount
     Decimal('100.00')
     >>> fixed_milestone.invoice.click('post')
+
+Check invoice::
+
+    >>> invoice = fixed_milestone.invoice
+    >>> fixed_milestone.project.party == invoice.party
+    True
+    >>> invoice.description == project.name
+    True
+    >>> len(invoice.lines)
+    1
+    >>> line1, = invoice.lines
+    >>> line1.description == 'Advancement 1'
+    True
 
 Finish Project::
 
