@@ -2,7 +2,6 @@
 # copyright notices and license terms.
 import datetime
 from decimal import Decimal
-
 from trytond.model import fields, ModelView
 from trytond.pool import PoolMeta, Pool
 from trytond.pyson import Bool, Eval, Or
@@ -121,6 +120,7 @@ class Work:
     @classmethod
     def validate(cls, works):
         super(Work, cls).validate(works)
+
         for work in works:
             work.check_invoice_method_product_type()
 
@@ -155,9 +155,10 @@ class Work:
     @classmethod
     @ModelView.button
     def open(cls, works):
-        pool = Pool()
-        Milestone = pool.get('project.invoice_milestone')
+        Milestone = Pool().get('project.invoice_milestone')
+
         super(Work, cls).open(works)
+
         milestones = []
         for work in works:
             milestones += work.milestones
@@ -166,9 +167,10 @@ class Work:
     @classmethod
     @ModelView.button
     def done(cls, works):
-        pool = Pool()
-        Milestone = pool.get('project.invoice_milestone')
+        Milestone = Pool().get('project.invoice_milestone')
+
         super(Work, cls).done(works)
+
         milestones = []
         for work in works:
             for milestone in work.milestones:
@@ -183,8 +185,8 @@ class Work:
     @classmethod
     @ModelView.button
     def create_milestone(cls, works):
-        pool = Pool()
-        Milestone = pool.get('project.invoice_milestone')
+        Milestone = Pool().get('project.invoice_milestone')
+
         milestones = []
         for work in works:
             if not work.milestone_group_type or work.milestones:
@@ -194,12 +196,12 @@ class Work:
 
     @property
     def pending_to_compensate_advanced_amount(self):
-        pool = Pool()
-        InvoiceLine = pool.get('account.invoice.line')
+        InvoiceLine = Pool().get('account.invoice.line')
 
         advanced_amount = Decimal(0)
         invoice_ids = []
         milestone_ids = []
+        compensation_products = set()
         for milestone in self.milestones:
             if not milestone.invoice or milestone.invoice.state == 'cancel':
                 continue
@@ -213,6 +215,7 @@ class Work:
             else:
                 invoice_ids.append(milestone.invoice.id)
                 milestone_ids.append(milestone.id)
+            compensation_products.add(milestone.compensation_product.id)
 
         if advanced_amount == Decimal(0) or not milestone_ids:
             return advanced_amount
@@ -222,6 +225,7 @@ class Work:
                 ('invoice', 'in', invoice_ids),
                 ('origin.id', 'in', milestone_ids,
                     'project.invoice_milestone'),
+                ('product', 'in', list(compensation_products)),
                 ])
         if not compensation_inv_lines:
             return advanced_amount
@@ -238,8 +242,7 @@ class Work:
             return super(Work, self).get_invoice_method(name)
 
     def _get_lines_to_invoice_remainder(self):
-        pool = Pool()
-        InvoicedProgress = pool.get('project.work.invoiced_progress')
+        InvoicedProgress = Pool().get('project.work.invoiced_progress')
 
         if self.invoice_line:
             return []
@@ -302,8 +305,8 @@ class Work:
 
 
 class WorkInvoicedProgress:
-    __name__ = 'project.work.invoiced_progress'
     __metaclass__ = PoolMeta
+    __name__ = 'project.work.invoiced_progress'
 
     def _credit(self):
         '''

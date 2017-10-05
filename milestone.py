@@ -591,8 +591,8 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                 key = dict(key)
                 invoice_line = milestone.project._get_invoice_line(
                     key, invoice, grouped_inv_line_vals)
-
                 invoice_line.invoice = invoice
+                invoice_line.origin = milestone
                 invoice_line.save()
                 invoice_amount += invoice_line.amount
 
@@ -682,7 +682,6 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                 'quantity': 1.0 if amount > _ZERO else -1.0,
                 'unit': self.advancement_product.default_uom,
                 'unit_price': abs(amount),
-                'origin': '',
                 'description': self._calc_invoice_line_description(),
                 }]
 
@@ -730,7 +729,6 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
         invoice_line.invoice_type = 'out'
         invoice_line.type = 'line'
         invoice_line.sequence = 1
-        invoice_line.description = ''
         invoice_line.origin = self
         invoice_line.party = self.project.party
         invoice_line.product = self.compensation_product
@@ -738,7 +736,6 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
         invoice_line.on_change_product()
         invoice_line.quantity = -1.0
         invoice_line.unit_price = amount
-
         return invoice_line
 
     @staticmethod

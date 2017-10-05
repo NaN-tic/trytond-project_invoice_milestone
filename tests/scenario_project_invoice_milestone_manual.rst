@@ -200,8 +200,8 @@ Create a Project::
 
 Assign MilestoneGroup::
 
-    >>> project.milestone_group_type
-    proteus.Model.get('project.invoice_milestone.type.group')(1)
+    >>> project.milestone_group_type.id == 1
+    True
     >>> project.click('create_milestone')
     >>> project.reload()
     >>> len(project.milestones)
@@ -230,15 +230,17 @@ Check Fixed Amount Milestone::
 
 Check invoice::
 
-    >>> invoice = fixed_milestone.invoice
-    >>> fixed_milestone.project.party == invoice.party
+    >>> invoice_fixed_milestone = fixed_milestone.invoice
+    >>> fixed_milestone.project.party == invoice_fixed_milestone.party
     True
-    >>> invoice.description == project.name
+    >>> invoice_fixed_milestone.description == project.name
     True
-    >>> len(invoice.lines)
+    >>> len(invoice_fixed_milestone.lines)
     1
-    >>> line1, = invoice.lines
+    >>> line1, = invoice_fixed_milestone.lines
     >>> line1.description == 'Advancement 1'
+    True
+    >>> line1.origin == fixed_milestone
     True
 
 Finish Project::
