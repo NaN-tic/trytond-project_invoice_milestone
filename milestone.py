@@ -470,7 +470,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
     def cron_check_triggers(cls):
         'Cron Check Triggers'
         milestones = cls.search([
-            ('state', '=', 'confirm'),
+            ('state', '=', 'confirmed'),
             ('kind', '=', 'system'),
             ('invoice', '=', None),
             ])
