@@ -473,6 +473,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
             ('state', '=', 'confirmed'),
             ('kind', '=', 'system'),
             ('invoice', '=', None),
+            ('invoice_date', '!=', None),
             ])
         if milestones:
             cls.check_trigger(milestones)
