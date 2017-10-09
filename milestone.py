@@ -704,8 +704,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
                 }]
 
     def _get_compensation_invoice_line(self, current_invoice_amount):
-        pool = Pool()
-        InvoiceLine = pool.get('account.invoice.line')
+        InvoiceLine = Pool().get('account.invoice.line')
 
         amount = self.project.pending_to_compensate_advanced_amount
         # TODO: review

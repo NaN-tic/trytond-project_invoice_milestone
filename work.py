@@ -215,9 +215,11 @@ class Work:
             else:
                 invoice_ids.append(milestone.invoice.id)
                 milestone_ids.append(milestone.id)
-            compensation_products.add(milestone.compensation_product.id)
+            if milestone.compensation_product:
+                compensation_products.add(milestone.compensation_product.id)
 
-        if advanced_amount == Decimal(0) or not milestone_ids:
+        if (advanced_amount == Decimal(0) or not milestone_ids
+                or not compensation_products):
             return advanced_amount
 
         # Get all compensation lines (origin is project's milestones)
@@ -229,6 +231,7 @@ class Work:
                 ])
         if not compensation_inv_lines:
             return advanced_amount
+
         return (advanced_amount
             + sum(il.amount for il in compensation_inv_lines))
 
