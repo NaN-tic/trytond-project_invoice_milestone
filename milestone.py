@@ -517,7 +517,8 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
     @ModelView.button
     def check_trigger(cls, milestones):
         triggered_milestones = cls.check_trigger_condition(milestones)
-        cls.do_invoice(triggered_milestones)
+        with Transaction().set_user(0):
+            cls.do_invoice(triggered_milestones)
 
     @classmethod
     def check_trigger_condition(cls, milestones):
