@@ -649,6 +649,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
         if hasattr(self.project.party, 'agent'):
             # Compatibility with commission_party
             invoice.agent = self.project.party.agent
+        invoice.invoice_date = self.invoice_date
         return invoice
 
     def _get_line_vals_to_invoice(self, work=None, test=False):
