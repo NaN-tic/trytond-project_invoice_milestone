@@ -73,14 +73,14 @@ class MilestoneMixin:
         digits=(16, Eval('currency_digits', 2)),
         states={
             'required': Eval('invoice_method') == 'fixed',
-            'invisible': Eval('invoice_method') != 'fixed',
+            'invisible': Eval('invoice_method').in_(
+                ['progress', 'remainder']),
             },
         depends=['invoice_method', 'currency_digits'])
     compensation_product = fields.Many2One('product.product',
         'Compensation Product', states={
             'required': Eval('invoice_method').in_(['progress', 'remainder']),
-            'invisible': ~Eval('invoice_method').in_(
-                ['percent', 'progress', 'remainder']),
+            'invisible': Eval('invoice_method') == 'percent'
             }, depends=['invoice_method'])
     currency = fields.Many2One('currency.currency', 'Currency',
         states={
