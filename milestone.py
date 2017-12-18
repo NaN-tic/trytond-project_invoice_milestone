@@ -57,11 +57,6 @@ class MilestoneMixin:
             ('progress', 'Progress'),
             ('remainder', 'Remainder'),
             ], 'Invoice Method', required=True, sort=False)
-    advancement_product = fields.Many2One('product.product',
-        'Advancement Product', states={
-            'required': Eval('invoice_method') == 'fixed',
-            'invisible': Eval('invoice_method') != 'fixed',
-            }, depends=['invoice_method'])
     invoice_percent = fields.Numeric('Invoice Percent',
         digits=(16, 8),
         states={
@@ -69,12 +64,17 @@ class MilestoneMixin:
             'invisible': Eval('invoice_method') != 'percent',
             },
         depends=['invoice_method', 'currency_digits'])
+    advancement_product = fields.Many2One('product.product',
+        'Advancement Product', states={
+            'required': Eval('invoice_method') == 'fixed',
+            'invisible': Eval('invoice_method').in_(
+                ['progress', 'remainder']),
+            }, depends=['invoice_method'])
     advancement_amount = fields.Numeric('Advancement Amount',
         digits=(16, Eval('currency_digits', 2)),
         states={
             'required': Eval('invoice_method') == 'fixed',
-            'invisible': Eval('invoice_method').in_(
-                ['progress', 'remainder']),
+            'invisible': Eval('invoice_method') != 'fixed',
             },
         depends=['invoice_method', 'currency_digits'])
     compensation_product = fields.Many2One('product.product',
