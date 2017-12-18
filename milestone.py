@@ -241,12 +241,13 @@ class MilestoneType(ModelSQL, ModelView, MilestoneMixin):
             milestone.trigger = self.trigger
             milestone.trigger_progress = self.trigger_progress
         milestone.invoice_method = self.invoice_method
-        if self.invoice_method == 'fixed':
+        if self.invoice_method not in ['progress', 'remainder']:
             milestone.advancement_product = self.advancement_product
             milestone.advancement_amount = self.advancement_amount
             milestone.currency = self.currency
-        else:
+        if self.invoice_method not in ['percent']:
             milestone.compensation_product = self.compensation_product
+
         for fname in ('months', 'month', 'weeks', 'weekday', 'days', 'day',
                 'description'):
             setattr(milestone, fname, getattr(self, fname))
