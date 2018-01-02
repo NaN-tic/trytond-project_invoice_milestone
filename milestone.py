@@ -694,14 +694,15 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
 
         if self.state != 'confirmed' or self.invoice:
             return []
-        uom = self.project.product_goods.default_uom
+        advancement_product = self.advancement_product
+        uom = advancement_product.default_uom
         quantity = float(Decimal(
             self.project.quantity * float(self.invoice_percent)).quantize(
                 Decimal(1) / 10 ** uom.digits))
         invoiced_progress = InvoicedProgress(work=self.project,
             quantity=quantity)
         return [{
-                'product': self.project.product_goods,
+                'product': advancement_product,
                 'quantity': quantity,
                 'unit': uom,
                 'unit_price': abs(self.project.list_price),
