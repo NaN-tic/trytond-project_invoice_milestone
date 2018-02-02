@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- The COPYRIGHT file at the top level of this repository contains the full
      copyright notices and license terms. -->
-<tree string="Milestone Type" sequence="sequence">
+<tree sequence="sequence">
     <field name="group"/>
     <field name="invoice_method"/>
     <field name="trigger_progress" factor="100">
