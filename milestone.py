@@ -763,7 +763,7 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
     def copy(cls, milestones, default=None):
         if default is None:
             default = {}
-        default.setdefault('code', None)
+        default.setdefault('number', None)
         default.setdefault('invoice_date', None)
         default.setdefault('invoice', None)
         return super(Milestone, cls).copy(milestones, default)
