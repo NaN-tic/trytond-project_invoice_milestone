@@ -172,12 +172,6 @@ class MilestoneMixin:
             return Company(company_id).currency.digits
         return 2
 
-    @fields.depends('currency')
-    def on_change_with_currency_digits(self, name=None):
-        if self.currency:
-            return self.currency.digits
-        return 2
-
     @staticmethod
     def default_months():
         return 0
@@ -189,6 +183,22 @@ class MilestoneMixin:
     @staticmethod
     def default_days():
         return 0
+
+    @fields.depends('currency')
+    def on_change_with_currency_digits(self, name=None):
+        if self.currency:
+            return self.currency.digits
+        return 2
+
+    def _calc_delta(self):
+        return {
+            'day': self.day,
+            'month': int(self.month) if self.month else None,
+            'days': self.days,
+            'weeks': self.weeks,
+            'months': self.months,
+            'weekday': int(self.weekday) if self.weekday else None,
+            }
 
 
 class MilestoneTypeGroup(ModelSQL, ModelView):
@@ -634,16 +644,6 @@ class Milestone(Workflow, ModelSQL, ModelView, MilestoneMixin):
         Date = pool.get('ir.date')
         today = Date.today()
         return today + relativedelta(**self._calc_delta())
-
-    def _calc_delta(self):
-        return {
-            'day': self.day,
-            'month': int(self.month) if self.month else None,
-            'days': self.days,
-            'weeks': self.weeks,
-            'months': self.months,
-            'weekday': int(self.weekday) if self.weekday else None,
-            }
 
     def _get_invoice(self):
         invoice = self.project._get_invoice()
